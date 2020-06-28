@@ -1,4 +1,4 @@
-import BaseBehavior from "../../../Common/Behavior/BaseBehavior";
+import BaseBehavior from "../../../../common/behavior/BaseBehavior";
 
 export default abstract class QuestionCheckBehavior extends BaseBehavior {
     public doCheck () : boolean {

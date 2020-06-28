@@ -1,4 +1,4 @@
-import BaseBehavior from "../../../Common/Behavior/BaseBehavior";
+import BaseBehavior from "../../../../common/behavior/BaseBehavior";
 import QuestionCheckBehavior from "./QuestionCheckBehavior";
 
 export default class One2OneCheckBehavior extends QuestionCheckBehavior {

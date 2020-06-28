@@ -1,4 +1,4 @@
-import IBehavior from "./Behavior/IBehavior";
+import IBehavior from "./behavior/IBehavior";
 
 export default class MyObject {
     Behaviors: Map<string, IBehavior>;

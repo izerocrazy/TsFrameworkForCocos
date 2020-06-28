@@ -1,7 +1,7 @@
-import MyObject from "../../Common/MyObject";
-import IBehavior from "../../Common/Behavior/IBehavior";
-import QuestionCheckBehavior from "./QuestionCheck/QuestionCheckBehavior";
-import One2OneCheckBehavior from "./QuestionCheck/One2OneCheckBehavior";
+import MyObject from "../../../common/MyObject";
+import IBehavior from "../../../common/Behavior/IBehavior";
+import QuestionCheckBehavior from "./question_check/QuestionCheckBehavior";
+import One2OneCheckBehavior from "./question_check/One2OneCheckBehavior";
 
 export const enum QuestionState {
     Min = 0,

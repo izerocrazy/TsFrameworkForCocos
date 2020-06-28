@@ -1,6 +1,6 @@
-import MyObject from "../Common/MyObject";
-import QuestionBehavior from "./Behavior/QuestionBehavior";
-import AnswerBehavior from "./Behavior/AnswerBehavior";
+import MyObject from "../../common/MyObject";
+import QuestionBehavior from "./behavior/QuestionBehavior";
+import AnswerBehavior from "./behavior/AnswerBehavior";
 
 export default class QuestionScene {
     root: MyObject;
