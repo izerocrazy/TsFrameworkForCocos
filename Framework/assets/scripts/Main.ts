@@ -23,7 +23,7 @@ export default class Main {
      * 初始化，保证单例 new
      */
     constructor() {
-        Main.AssertNotEmpty(Main._instance, "Error: Main Instantiation failed: Use Main.getInstance()");
+        Main.AssertEmpty(Main._instance, "Error: Main Instantiation failed: Use Main.getInstance()");
 
         Main._instance = this;
     }
@@ -194,6 +194,10 @@ export default class Main {
      * @param data 传入的报错日志信息
      */
     public static Error(...data) {
+        if (Main._instance === null || Main._instance === undefined) {
+            throw new Error (JSON.stringify(data));
+        }
+        
         let log = Main.getInstance().getModule("Log") as LogModule;
         if (log) {
             log.Error(data);
@@ -216,7 +220,7 @@ export default class Main {
         }
 
         if (value !== null && value !== undefined) {
-            this.Error(error);
+            Main.Error(error);
         }
     }
 
@@ -231,7 +235,7 @@ export default class Main {
         }
 
         if (value === null || value === undefined) {
-            this.Error(error);
+            Main.Error(error);
         }
     }
 
@@ -246,7 +250,7 @@ export default class Main {
         }
 
         if (value === null || value === undefined || value === "") {
-            this.Error(error);
+            Main.Error(error);
         }
     }
 
@@ -261,7 +265,7 @@ export default class Main {
         }
 
         if (!(value === true)) {
-            this.Error(error);
+            Main.Error(error);
         }
     }
 }

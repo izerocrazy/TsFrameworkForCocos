@@ -24,6 +24,7 @@ export default class testMainAndModule {
 
         this.testMain();
         this.testMainAddRemoveModule();
+        this.testModuleFunction();
     }
 
     /**
@@ -48,7 +49,7 @@ export default class testMainAndModule {
     public testMainAddRemoveModule() {
         let m = Main.getInstance().createModule("test", testModule);
 
-        Main.Assert(Main.getInstance().getModuleLenght() === 1, "testMainAddRemoveModule test add modules failed");
+        Main.Assert(Main.getInstance().getModuleLenght() === 3, "testMainAddRemoveModule test add modules failed, " + Main.getInstance().getModuleLenght());
         Main.Assert(m.getName() === "test", "testMainAddRemoveModule test getName Fail");
         Main.Assert(Main.getInstance().getModule("test") === m, "testMainAddRemoveModule test getModule Fail");
         
@@ -69,7 +70,7 @@ export default class testMainAndModule {
             isCatch = true;
         }
         Main.Assert(isCatch === false, "testMainAddRemoveModule test remove modules failed");
-        Main.Assert(Main.getInstance().getModuleLenght() === 0, "testMainAddRemoveModule test remove modules failed");
+        Main.Assert(Main.getInstance().getModuleLenght() === 2, "testMainAddRemoveModule test remove modules failed");
         try {
             Main.getInstance().removeModule("test");
         } catch (error) {
@@ -89,7 +90,7 @@ export default class testMainAndModule {
         // 清空 Main
         Main.getInstance().removeModule("test");
 
-        Main.Log("testMainAndModule pass");
+        Main.Log("testMainAndRemoveModule pass");
     }
 
     /**
@@ -110,5 +111,7 @@ export default class testMainAndModule {
 
         Main.getInstance().update();
         Main.Assert(m.testValue === 3, "testModuleFunction removeModule Fail, still call remove module update");
+
+        Main.Log("testMainFunction pass");
     }
 }

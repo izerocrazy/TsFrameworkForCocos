@@ -14,6 +14,7 @@ export default class MessageChannel {
         }
 
         this.name = name;
+        this.messageLine = new Array;
         this.callbackList = new Array;
         this.isProcessMsg = false;
     }

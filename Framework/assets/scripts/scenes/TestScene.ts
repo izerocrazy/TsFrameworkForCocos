@@ -7,6 +7,7 @@
 
 import Main from "../Main";
 import QuestionModule from "../logic/question/QuestionModule";
+import testMainAndModule from "../test/testMainAndModule";
 
 const {ccclass, property} = cc._decorator;
 
@@ -24,7 +25,8 @@ export default class TestScene extends cc.Component {
     // onLoad () {}
 
     start () {
-        Main.getInstance().createModule("Question", QuestionModule);
+        // Main.getInstance().createModule("Question", QuestionModule);
+        let test = new testMainAndModule();
     }
 
     // update (dt) {}
