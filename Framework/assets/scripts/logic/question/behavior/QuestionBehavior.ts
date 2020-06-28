@@ -20,6 +20,7 @@ export const enum QuestionType {
 };
 
 export default class QuestionBehavior extends MyObject implements IBehavior {
+    name: string = null;
     state: QuestionState = QuestionState.WaitAnswer;
     checkBehavior: QuestionCheckBehavior;
 
@@ -29,9 +30,12 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
         }
         
         if (data.type === null || data.type === undefined
-            || data.data === null || data.data === undefined) {
+            || data.data === null || data.data === undefined
+            || data.name === null || data.name === undefined) {
                 throw new Error ("QuestionBehavior Init Fail, data is error" + JSON.stringify(data));
             }
+        
+        this.name = data.name;
         this.SetValue(data.type, data.data);
     }
 
@@ -41,6 +45,10 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
 
     public Update() {
 
+    }
+
+    public getName() {
+        return this.name;
     }
 
     private SetValue(type: QuestionType, data: any = null) {

@@ -12,7 +12,7 @@ export default class MyObject {
     public Update() {
         // 非 remove 的 Behavior.update
         this.Behaviors.forEach(b => {
-            if (this.isRemoved(b) == false) {
+            if (this.isRemovedByName(b.getName()) == false) {
                 b.Update();
             }
         });
@@ -20,7 +20,9 @@ export default class MyObject {
         // 移除 Behavior
         if (this.RemoveBehaviors.length > 0) {
             this.RemoveBehaviors.forEach(b => {
-                // todo something
+                this.Behaviors[b.getName()] = undefined;
+
+                // todo something in behaviors
             });
 
             // 彻底清理
@@ -33,22 +35,26 @@ export default class MyObject {
             throw new Error ("MyObject CreateBehavior Fail, name is empty");
         }
 
+        if (this.isHaveBehavior(name)) {
+            throw new Error("MyObject CreateBehavior Fail, already have this name:" + name);
+        }
+
         let ret = new c();
-        ret.Init(data);
+        ret.Init({name: name, data: data});
 
         this.Behaviors[name] = ret;
 
         return ret;
     }
 
-    public isHaveBehavior(b: IBehavior) {
+    public isHaveBehavior(name: string) {
         let ret = false;
 
         // 如果在移除列表中，那也是算不拥有的
-        if (this.isRemoved(b) === false) {
+        if (this.isRemovedByName(name) === false) {
             let a = Array.from(this.Behaviors.values());
             for (let i = 0; i < a.length; i++) {
-                if (a[i] == b) {
+                if (a[i].getName() == name) {
                     ret = true;
                     break;
                 }
@@ -59,7 +65,7 @@ export default class MyObject {
     }
 
     public DeleteBehavior(b: IBehavior) {
-        if (this.isRemoved(b)) {
+        if (this.isRemovedByName(b.getName())) {
             throw new Error("MyObject RemoveBehavior fail, already removed");
         }
 
@@ -79,11 +85,11 @@ export default class MyObject {
         return this.Behaviors[name];
     }
 
-    private isRemoved (b: IBehavior) : boolean {
+    private isRemovedByName (name: string) : boolean {
         let ret = false;
 
         for (let i = 0; i < this.RemoveBehaviors.length; i++) {
-            if (this.RemoveBehaviors[i] == b) {
+            if (this.RemoveBehaviors[i].getName() == name) {
                 ret = true;
                 break;
             }

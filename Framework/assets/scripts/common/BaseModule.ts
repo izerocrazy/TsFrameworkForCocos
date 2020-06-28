@@ -1,18 +1,23 @@
 import IModule from "./IModule";
+import Main from "../Main";
 
 export default abstract class BaseModule implements IModule {
     name: string = null;
 
-    GetName() : string {
-        console.log ('GetName', this.name);
+    getName() : string {
         return this.name;
     }
 
-    Init (name: string) {
+    init (name: string) {
+        Main.AssertStringNotEmpty(name, "BaseModuel Init Fail, name is empty");
         this.name = name;
     }
 
-    Update () {
+    uninit() {
+        
+    }
+
+    update () {
         throw new Error ("Error: BaseModule Update fail, should override");
     }
 }

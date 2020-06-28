@@ -35,7 +35,7 @@ export default class QuestionModule extends BaseModule {
         this.answerList.push(answer);
     }
 
-    public Update () {
+    public update () {
         this.root.Update();
     }
 

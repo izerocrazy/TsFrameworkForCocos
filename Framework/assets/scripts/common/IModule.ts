@@ -1,6 +1,7 @@
 export default interface IModule {
-    Init(name:string);
-    Update();
+    init(name:string);
+    uninit();
+    update();
 
-    GetName() : string;
+    getName() : string;
 }
