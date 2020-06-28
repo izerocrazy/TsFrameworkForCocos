@@ -5,6 +5,9 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
+import Main from "../Main";
+import QuestionModule from "../logic/question/QuestionModule";
+
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -21,7 +24,7 @@ export default class TestScene extends cc.Component {
     // onLoad () {}
 
     start () {
-
+        Main.getInstance().createModule("Question", QuestionModule);
     }
 
     // update (dt) {}

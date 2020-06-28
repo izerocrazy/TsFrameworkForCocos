@@ -1,6 +1,6 @@
 import IModule from "./IModule";
 
-export default class BaseModule implements IModule {
+export default abstract class BaseModule implements IModule {
     name: string = null;
 
     GetName() : string {

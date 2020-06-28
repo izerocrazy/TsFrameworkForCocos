@@ -1,13 +1,16 @@
 import MyObject from "../../common/MyObject";
 import QuestionBehavior from "./behavior/QuestionBehavior";
 import AnswerBehavior from "./behavior/AnswerBehavior";
+import BaseModule from "../../common/BaseModule";
 
-export default class QuestionScene {
+export default class QuestionModule extends BaseModule {
     root: MyObject;
     rootQuestion: QuestionBehavior;
     answerList: MyObject[];
 
-    constructor(data) {
+    constructor() {
+        super();
+
         // todo: 应该依据外部 data 来初始化
 
         // 初始化题面

@@ -24,10 +24,9 @@ export default class Main {
     public init ()
     {
         // 增加 Module，要调用 init
-        let log: LogModule = new LogModule();
-        this.addModule("Log", log);
+        this.createModule("Log", LogModule);
 
-        log = this.getModule("Log") as LogModule;
+        let log = this.getModule("Log") as LogModule;
     }
 
     public update ()
@@ -45,6 +44,7 @@ export default class Main {
         for (let i = 0; i < this.removeModuleIndexList.length; i++) {
             this.modules.splice(this.removeModuleIndexList[i], 1);
         }
+        this.removeModuleIndexList = [];
     }
 
     public getModule (name: string) : IModule
@@ -83,9 +83,9 @@ export default class Main {
         return index;
     }
 
-    public addModule (name:string, module:IModule)
+    public createModule<A extends IModule> (name:string, m: new() => A)
     {
-        if (name === null || name === undefined || module === null || module === undefined) {
+        if (name === null || name === undefined || m === null || m === undefined) {
             throw new Error("Error: Main addModule failed, szName or module is empty");
         }
 
@@ -97,6 +97,7 @@ export default class Main {
             throw new Error("Error: Main addModule failed, aleardy exist module " + name);
         }
 
+        let module = new m();
         module.Init(name);
         this.modules.push(module);
     }
