@@ -20,8 +20,6 @@ export class testModule extends BaseModule {
 
 export default class testMainAndModule {
     constructor () {
-        Main.getInstance().init();
-
         this.testMain();
         this.testMainAddRemoveModule();
         this.testModuleFunction();
@@ -52,7 +50,7 @@ export default class testMainAndModule {
         Main.Assert(Main.getInstance().getModuleLenght() === 3, "testMainAddRemoveModule test add modules failed, " + Main.getInstance().getModuleLenght());
         Main.Assert(m.getName() === "test", "testMainAddRemoveModule test getName Fail");
         Main.Assert(Main.getInstance().getModule("test") === m, "testMainAddRemoveModule test getModule Fail");
-        
+
         // 重复创建
         let isCatch = false;
         try {
@@ -71,6 +69,7 @@ export default class testMainAndModule {
         }
         Main.Assert(isCatch === false, "testMainAddRemoveModule test remove modules failed");
         Main.Assert(Main.getInstance().getModuleLenght() === 2, "testMainAddRemoveModule test remove modules failed");
+        Main.AssertEmpty(Main.getInstance().getModule("test"), "testMainAddRemoveModule test remove modules failed");
         try {
             Main.getInstance().removeModule("test");
         } catch (error) {
@@ -81,12 +80,12 @@ export default class testMainAndModule {
         // 删除后再次添加
         isCatch = false;
         try {
-            Main.getInstance().createModule("test", testModule);    
+            Main.getInstance().createModule("test", testModule);
         } catch (error) {
             isCatch = true;
         }
         Main.Assert(isCatch === false, "testMainAndRemoveModule test add module after remove failed");
-        
+
         // 清空 Main
         Main.getInstance().removeModule("test");
 

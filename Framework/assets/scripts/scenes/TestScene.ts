@@ -25,7 +25,8 @@ export default class TestScene extends cc.Component {
     // onLoad () {}
 
     start () {
-        // Main.getInstance().createModule("Question", QuestionModule);
+        Main.getInstance().init();
+
         let test = new testMainAndModule();
     }
 
