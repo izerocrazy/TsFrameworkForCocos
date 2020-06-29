@@ -52,7 +52,7 @@ export default class Main {
         let channel = msgModule.createChannel("Main");
 
         // 最后发送
-        msgModule.addMessage("Main", "Init", null);
+        // msgModule.addMessage("Main", "Init", null);
     }
 
     /**

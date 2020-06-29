@@ -1,4 +1,5 @@
 import Message from "./Message";
+import Main from "../../Main";
 
 /**
  * 在 MessageModule 中，用来做 Message 分流的对象
@@ -83,7 +84,7 @@ export default class MessageChannel {
      * 弹出所有的消息，依次响应
      */
     public popAllMsg () {
-        if (this.callbackList.length > 0) {
+        if (this.callbackList.length <= 0) {
             return;
         }
 

@@ -8,6 +8,7 @@
 import Main from "../Main";
 import QuestionModule from "../logic/question/QuestionModule";
 import testMainAndModule from "../test/testMainAndModule";
+import testMessageModule from "../test/testMessageModule";
 
 const {ccclass, property} = cc._decorator;
 
@@ -28,6 +29,7 @@ export default class TestScene extends cc.Component {
         Main.getInstance().init();
 
         let test = new testMainAndModule();
+        let test2 = new testMessageModule();
     }
 
     // update (dt) {}

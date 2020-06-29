@@ -1,6 +1,7 @@
 import BaseModule from "../../common/BaseModule";
 import MessageChannel from "./MessageChannel";
 import Message from "./Message";
+import Main from "../../Main";
 
 /**
  * 用来在“代码层”之间异步传递消息的 Module：

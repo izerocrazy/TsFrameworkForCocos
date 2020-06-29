@@ -1,3 +1,4 @@
+import Main from "../Main";
 import MessageModule from "../logic/message/MessageModule";
 import MessageChannel from "../logic/message/MessageChannel";
 import Message from "../logic/message/Message";
@@ -60,7 +61,7 @@ export default class testMessageModule {
         channel.pushMsg(new Message("name", "data"));
         channel.popAllMsg();
 
-        Main.Assert(testData === 1, "testMessageModule testChannel Failed, pop msg error");
+        Main.Assert(testData === 1, "testMessageModule testChannel Failed, pop msg error, data is " + testData);
 
         // 添加 listener2
         testData = 0;
@@ -69,12 +70,15 @@ export default class testMessageModule {
         channel.pushMsg(new Message("name", "data"));
         channel.popAllMsg();
 
-        Main.Assert(testData === 3, "testMessageModule testChannel Failed, pop msg error");
+        Main.Assert(testData === 3, "testMessageModule testChannel Failed, pop msg error, data is " + testData);
 
         // 移除 listener，再次测试事件
         channel.removeListener(onTestMsg1);
         channel.pushMsg(new Message("name", "data"));
         channel.popAllMsg();
+
+        channel.removeListener(onTestMsg2);
+        Main.Log("testMessagemodule testChannel Pass");
     }
 
     /**
