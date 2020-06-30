@@ -29,8 +29,9 @@ export default class MyObject {
         let a = Array.from(this.Behaviors.values());
         for (let i = 0; i < a.length; i++) {
             let b = a[i];
+
             // 非 remove 的 Behavior.update
-            if (this.isRemovedByName(b.getName()) == false) {
+            if (this.isRemovedByName(b.getName()) === false) {
                 b.update();
             }
         }
@@ -38,7 +39,7 @@ export default class MyObject {
         // 移除 Behavior
         if (this.RemoveBehaviors.length > 0) {
             this.RemoveBehaviors.forEach(b => {
-                this.Behaviors[b.getName()] = undefined;
+                this.Behaviors.delete(b.getName());
 
                 // todo something in behaviors
             });
@@ -64,7 +65,7 @@ export default class MyObject {
         let ret = new c();
         ret.init({name: name, data: data});
 
-        this.Behaviors[name] = ret;
+        this.Behaviors.set(name, ret);
 
         return ret;
     }
@@ -78,13 +79,7 @@ export default class MyObject {
 
         // 如果在移除列表中，那也是算不拥有的
         if (this.isRemovedByName(name) === false) {
-            let a = Array.from(this.Behaviors.values());
-            for (let i = 0; i < a.length; i++) {
-                if (a[i].getName() == name) {
-                    ret = true;
-                    break;
-                }
-            }
+            ret = this.Behaviors.has(name);
         }
 
         return ret;
@@ -119,10 +114,16 @@ export default class MyObject {
      * @param name Behavior 的名字
      */
     public getBehaviorByName(name: string) {
+        let ret = null;
+
         Main.AssertStringNotEmpty(name, "MyObject getBehaviorByName Fail, name is empty");
         Main.AssertNotEmpty(this.Behaviors, "MyObject getBehaviorByName Fail, behaviors is empty");
 
-        return this.Behaviors[name];
+        if (this.isRemovedByName(name) === false) {
+            ret = this.Behaviors.get(name);
+        }
+
+        return ret;
     }
 
     /**

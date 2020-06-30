@@ -5,7 +5,7 @@ import BaseBehavior from "../common/behavior/BaseBehavior"
 let gTestValue = 0;
 
 class testBehavior extends BaseBehavior {
-    string data = "";
+    data:string = "";
 
     public init (data) {
         super.init(data);
@@ -21,6 +21,7 @@ class testBehavior extends BaseBehavior {
 // 测试 MyObject，主要 Behavior 的添加删除操作
 export default class testMyObject {
     constructor () {
+        this.testObj()
     }
 
     /**
@@ -33,11 +34,16 @@ export default class testMyObject {
      */
     public testObj (){
         let obj = new MyObject();
+        obj.init();
 
         // 增加
         let behavior = obj.createBehavior("test", testBehavior, "hello");
         Main.Assert(behavior.name === "test", "testMyObject testObj Fail, name error: " + behavior.name);
         Main.Assert(behavior.data === "hello", "testMyObject testObj Fail, data error:" + behavior.data);
+
+        // 查找
+        let behavior2 = obj.getBehaviorByName("test");
+        Main.Assert(behavior === behavior2, "testMyObject testObj Fail, getBehaviorByName Error name: test");
 
         // 重复增加
         let isCatch = false;
@@ -49,8 +55,8 @@ export default class testMyObject {
         Main.Assert(isCatch, "testMyObject testObj Fail, createBehavior error");
 
         // 查找
-        let behavior2 = obj.getBehaviorByName("test");
-        Main.Assert(behavior === behavior2, "testMyObject testObj Fail, getBehaviorByName Error name: test");
+        let behavior3 = obj.getBehaviorByName("test");
+        Main.Assert(behavior === behavior3, "testMyObject testObj Fail, getBehaviorByName Error name: test");
 
         // 删除
         obj.deleteBehaviorByName("test");
