@@ -1,21 +1,39 @@
+import Main from "../Main"
 import IBehavior from "./behavior/IBehavior";
 
+/**
+ * 通用的抽象对象，主要用处是可以添加行为
+ */
 export default class MyObject {
+    // 挂载数据
+    data: any;
+    // 行为树的雏形
     Behaviors: Map<string, IBehavior>;
+    // 移除掉的行为对象
     RemoveBehaviors: IBehavior[];
 
-    public Init (data = null) {
+    /**
+     * 初始化
+     */
+    public init (data = null) {
+        this.data = data;
         this.Behaviors = new Map<string, IBehavior>();
         this.RemoveBehaviors = new Array();
     }
 
-    public Update() {
-        // 非 remove 的 Behavior.update
-        this.Behaviors.forEach(b => {
+    /**
+     * 对象 Update
+     * 当前实现是更新所有的 Behavior，并且真实移除掉 removed Behavior
+     */
+    public update() {
+        let a = Array.from(this.Behaviors.values());
+        for (let i = 0; i < a.length; i++) {
+            let b = a[i];
+            // 非 remove 的 Behavior.update
             if (this.isRemovedByName(b.getName()) == false) {
-                b.Update();
+                b.update();
             }
-        });
+        }
 
         // 移除 Behavior
         if (this.RemoveBehaviors.length > 0) {
@@ -30,23 +48,31 @@ export default class MyObject {
         }
     }
 
-    public CreateBehavior<A extends IBehavior> (name: string, c: new() => A, data: any = null): A {
-        if (name === null || name === undefined || name === "") {
-            throw new Error ("MyObject CreateBehavior Fail, name is empty");
-        }
-
-        if (this.isHaveBehavior(name)) {
-            throw new Error("MyObject CreateBehavior Fail, already have this name:" + name);
-        }
+    /**
+     * 添加一个新的行为
+     * 这里有一个特殊，加入的 Behavior 不能和待删除的 Behavior 同名
+     * @param name 行为名称
+     * @param c 行为对象 XXXBehavior
+     * @param data 行为对象的初始化数据
+     * @return ret 返回创建好的行为对象
+     */
+    public createBehavior<A extends IBehavior> (name: string, c: new() => A, data: any = null): A {
+        Main.AssertStringNotEmpty(name,"MyObject createBehavior Fail, name is empty");
+        Main.Assert(this.isHaveBehavior(name) === false, "MyObject createBehavior Fail, already have this name:" + name);
+        Main.Assert(this.isRemovedByName(name) === false, "MyObject createBhavior Fail, this name just be removed:" + name);
 
         let ret = new c();
-        ret.Init({name: name, data: data});
+        ret.init({name: name, data: data});
 
         this.Behaviors[name] = ret;
 
         return ret;
     }
 
+    /**
+     * 是否有当前名的行为
+     * @param name 行为名称
+     */
     public isHaveBehavior(name: string) {
         let ret = false;
 
@@ -64,27 +90,45 @@ export default class MyObject {
         return ret;
     }
 
-    public DeleteBehavior(b: IBehavior) {
-        if (this.isRemovedByName(b.getName())) {
-            throw new Error("MyObject RemoveBehavior fail, already removed");
-        }
+    /**
+     * 移除某个 behavior
+     * @param name 需要被移除的 behavior 的名字
+     */
+    public deleteBehaviorByName(name: string) {
+        Main.AssertStringNotEmpty (name, "MyObject deleteBehaviorByName fail, name is empty");
 
-        b.Uninit();
+        let b = this.getBehaviorByName(name);
+        Main.AssertNotEmpty(b, "MyObject deleteBehaviorByName Fail, can't get behavior by name:" + name);
+
+        this.deleteBehavior(b);
+    }
+
+    /**
+     * 移除某个 behavior
+     * @param b 需要被移除的 behavior
+     */
+    public deleteBehavior(b: IBehavior) {
+        Main.Assert(this.isRemovedByName(b.getName()) === false, "MyObject RemoveBehavior fail, already removed");
+
+        b.uninit();
         this.RemoveBehaviors.push(b);
     }
 
-    public GetBehaviorByName(name: string) {
-        if (name === null || name === undefined || name === "") {
-            throw new Error ("MyObject GetBehaviorByName Fail, name is empty");
-        }
-
-        if (this.Behaviors === null || this.Behaviors === undefined) {
-            throw new Error ("MyObject GetBehaviorByName Fail, behaviors is empty");
-        }
+    /**
+     * 通过名字获取 Behavior
+     * @param name Behavior 的名字
+     */
+    public getBehaviorByName(name: string) {
+        Main.AssertStringNotEmpty(name, "MyObject getBehaviorByName Fail, name is empty");
+        Main.AssertNotEmpty(this.Behaviors, "MyObject getBehaviorByName Fail, behaviors is empty");
 
         return this.Behaviors[name];
     }
 
+    /**
+     * 某个 Behavior 是否被移除
+     * @param name Behavior 的名字
+     */
     private isRemovedByName (name: string) : boolean {
         let ret = false;
 
@@ -94,7 +138,7 @@ export default class MyObject {
                 break;
             }
         }
-        
+
         return ret;
     }
 }
