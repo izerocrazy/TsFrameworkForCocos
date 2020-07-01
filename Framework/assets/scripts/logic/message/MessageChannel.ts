@@ -137,7 +137,7 @@ export default class MessageChannel {
      * 得到 Listener 在当前 list 中的 index
      * @param callback Listener
      */
-    public getListnerIndex(callback: any) : number {
+    public getListenerIndex(callback: any) : number {
         let ret = -1;
 
         if (callback === null || callback === undefined) {
@@ -175,7 +175,7 @@ export default class MessageChannel {
     public removeListener(callback: any) {
         Main.AssertNotEmpty(callback, "MessageChannel removeListener Fail, this callback is empty");
 
-        let index = this.getListnerIndex(callback);
+        let index = this.getListenerIndex(callback);
         Main.Assert(index !== -1, "MessageChannel removeListener Fail, already have this callback");
 
         this.removeCallbackIndexList.push(index);
