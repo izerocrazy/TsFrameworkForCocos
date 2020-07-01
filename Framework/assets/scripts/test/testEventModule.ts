@@ -1,4 +1,5 @@
 import Main from "../Main";
+import EventModule from "../logic/event/EventModule";
 
 let testValue = 0;
 
@@ -18,7 +19,7 @@ function testEventFunc2 (name: string, param: any) {
 // Event 的增删查改
 export default class testEventModule {
     constructor () {
-        testModule();
+        this.testModule();
     }
 
     /**
@@ -28,7 +29,8 @@ export default class testEventModule {
      * Listener 的使用
      */
     private testModule () {
-        let eventModule = Main.getInstance().getModule("Event") as MessageModule;
+        Main.getInstance().createModule("Event", EventModule);
+        let eventModule = Main.getInstance().getModule("Event") as EventModule;
         Main.AssertNotEmpty (eventModule, "testEventModule testModule failed, can't get event module");
 
         // 测试添加
@@ -65,7 +67,7 @@ export default class testEventModule {
 
         // 测试移除后的使用
         testValue = 0;
-        Main.dispatchEvent("test", 2);
+        eventModule.dispatchEvent("test", 2);
         Main.Assert(testValue === -1, "testEventModule testModule Failed, removeEventListener Error");
 
         Main.Log ("testEventModule testModule Pass");

@@ -1,5 +1,6 @@
 import BaseModule from "../../common/BaseModule";
 import Main from "../../Main";
+import Event from "./Event";
 
 /**
  * 事件模块
@@ -8,16 +9,16 @@ export default class EventModule extends BaseModule {
     // 所有事件
     events : Map<string, Event>;
     // 将要被添加的 Event Listener
-    addEventListener : Map<string, any>;
+    addEventListeners : Map<string, any>;
     // 将要被移除的 Event Listener
-    removeEventListener : Map<string, any>;
+    removeEventListeners : Map<string, any>;
 
     constructor () {
         super();
 
-        events = new Map<string, Event>();
-        addEventListeners = new Map<string, any[]>();
-        removeEventListeners = new Map<string, any[]>();
+        this.events = new Map<string, Event>();
+        this.addEventListeners = new Map<string, any[]>();
+        this.removeEventListeners = new Map<string, any[]>();
     }
 
     /**
@@ -27,7 +28,7 @@ export default class EventModule extends BaseModule {
     public isHaveEvent (name: string) : boolean {
         Main.AssertStringNotEmpty(name, "EventModule isHaveEvent failed, name is empty");
 
-        return events.has(name);
+        return this.events.has(name);
     }
 
     /**
@@ -39,14 +40,14 @@ export default class EventModule extends BaseModule {
     public dispatchEvent (name: string, param: any) {
         Main.AssertStringNotEmpty(name, "EventModule dispatchEvent failed, name is empty");
 
-        let event = events.get(name);
+        let event = this.events.get(name);
         Main.AssertNotEmpty(event, "EventModule dispatchEvent failed, this event is empty");
         Main.Assert(event.isFire === false, "EventModule dispatchEvent failed, this event is fire");
 
         event.fire (param);
 
         // 清理掉缓存的 add 和 remove 操作
-        if (this.addEventListeners.length > 0) {
+        if (this.addEventListeners.values.length > 0) {
             this.addEventListeners.forEach((value, key) =>{
                 let name = key;
                 let array = value;
@@ -57,7 +58,7 @@ export default class EventModule extends BaseModule {
             })
         }
 
-        if (this.removeEventListeners.length > 0) {
+        if (this.removeEventListeners.values.length > 0) {
             this.removeEventListeners.forEach((value, key) =>{
                 let name = key;
                 let array = value;
@@ -113,7 +114,7 @@ export default class EventModule extends BaseModule {
         let event = this.events.get(name);
         Main.Assert(event.isContainListener(func), "EventModule removeEventListeners failed cant find listen in event named " + name)
         if (event.isFire === true) {
-            if (this.removeEventListeners.hase(name) === false) {
+            if (this.removeEventListeners.has(name) === false) {
                 let array = new Array();
                 this.removeEventListeners.set(name, array);
             }

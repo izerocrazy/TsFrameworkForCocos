@@ -1,6 +1,7 @@
 import IModule from "./common/IModule";
 import LogModule from "./logic/log/LogModule";
 import MessageModule from "./logic/message/MessageModule";
+import EventModule from "./logic/event/EventModule";
 
 export default class Main {
     /**

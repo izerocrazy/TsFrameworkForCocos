@@ -1,3 +1,5 @@
+import Main from "../../Main";
+
 /**
  * 事件
  * 注意 isFire 属性，当 isFire 的时候，不允许直接添加和删除 Listener
@@ -74,9 +76,9 @@ export default class Event {
     public removeListener (func:any) {
         Main.Assert(this.isFire === false, "Event removeListener Fail, isFire");
 
-        for (let i = 0; i < this.Listener.length; i++) {
-            if (this.Listener[i] === func) {
-                this.Listener.splice(i, 1);
+        for (let i = 0; i < this.listeners.length; i++) {
+            if (this.listeners[i] === func) {
+                this.listeners.splice(i, 1);
             }
         }
     }
