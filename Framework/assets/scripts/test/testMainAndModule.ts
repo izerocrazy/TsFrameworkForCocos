@@ -45,9 +45,10 @@ export default class testMainAndModule {
      * 删除后添加成功
      */
     public testMainAddRemoveModule() {
+        let length = Main.getInstance().getModuleLenght();
         let m = Main.getInstance().createModule("test", testModule);
 
-        Main.Assert(Main.getInstance().getModuleLenght() === 3, "testMainAddRemoveModule test add modules failed, " + Main.getInstance().getModuleLenght());
+        Main.Assert(Main.getInstance().getModuleLenght() === length + 1, "testMainAddRemoveModule test add modules failed, " + Main.getInstance().getModuleLenght());
         Main.Assert(m.getName() === "test", "testMainAddRemoveModule test getName Fail");
         Main.Assert(Main.getInstance().getModule("test") === m, "testMainAddRemoveModule test getModule Fail");
 

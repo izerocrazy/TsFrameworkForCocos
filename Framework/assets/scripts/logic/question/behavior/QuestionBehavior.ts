@@ -25,22 +25,23 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
     checkBehavior: QuestionCheckBehavior;
 
     public Init(data) {
+        super.Init(data);
+
         if (data === null || data === undefined) {
             throw new Error ("QuestionBehavior Init Fail, data is empty");
         }
-        
+
         if (data.type === null || data.type === undefined
             || data.data === null || data.data === undefined
             || data.name === null || data.name === undefined) {
                 throw new Error ("QuestionBehavior Init Fail, data is error" + JSON.stringify(data));
             }
-        
+
         this.name = data.name;
         this.SetValue(data.type, data.data);
     }
 
     public Uninit() {
-
     }
 
     public Update() {

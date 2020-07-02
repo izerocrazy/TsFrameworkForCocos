@@ -30,10 +30,12 @@ export default class TestScene extends cc.Component {
     start () {
         Main.getInstance().init();
 
+        /*
         let test = new testMainAndModule();
         let test2 = new testMessageModule();
         let test3 = new testMyObject();
         let test4 = new testEventModule();
+         */
     }
 
     // update (dt) {}
