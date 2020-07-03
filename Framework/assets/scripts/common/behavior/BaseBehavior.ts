@@ -13,12 +13,12 @@ export default abstract class BaseBehavior implements IBehavior{
 
     /**
      * 初始化
-     * @param data 初始化数据 {name:"", data:{}}
+     * @param data 初始化数据 {name:"", data:any}
      */
-    public init(data) {
+    public init(data: { name: string, data: any}) {
         Main.AssertNotEmpty(data, "BaseBehavior Init Fail, data is empty");
         Main.AssertNotEmpty(data.name, "BaseBehavior Init Fail, data.name is empty");
-        Main.AssertNotEmpty(data.data, "BaseBehavior Init Fail, data.data is empty");
+        // Main.AssertNotEmpty(data.data, "BaseBehavior Init Fail, data.data is empty");
 
         this.name = data.name;
     }

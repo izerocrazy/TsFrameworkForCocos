@@ -269,4 +269,31 @@ export default class Main {
             Main.Error(error);
         }
     }
+
+    public static _callbackMap : Map<any, Map<Function, Function>> = new Map<any, Map<Function, Function>>();
+    /**
+     * 全局的回调函数，自带 this
+     */
+    public static getCallbackWithThis (callback: Function, owner: any) : Function {
+        let ret = null;
+
+        let funcMap = null;
+        if (this._callbackMap.has(owner) === false) {
+            funcMap = new Map<Function, Function> ();
+            this._callbackMap.set(owner, funcMap);
+        } else {
+            funcMap = this._callbackMap.get(owner);
+        }
+
+        if (funcMap.has(callback) === false) {
+            ret = function (...data) {
+                callback.call(owner, data);
+            };
+            funcMap.set(callback, ret);
+        } else {
+            ret = funcMap.get(callback);
+        }
+
+        return ret;
+    }
 }

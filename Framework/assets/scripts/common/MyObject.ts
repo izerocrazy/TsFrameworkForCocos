@@ -5,8 +5,6 @@ import IBehavior from "./behavior/IBehavior";
  * 通用的抽象对象，主要用处是可以添加行为
  */
 export default class MyObject {
-    // 挂载数据
-    data: any;
     // 行为树的雏形
     Behaviors: Map<string, IBehavior>;
     // 移除掉的行为对象
@@ -16,7 +14,6 @@ export default class MyObject {
      * 初始化
      */
     public init (data = null) {
-        this.data = data;
         this.Behaviors = new Map<string, IBehavior>();
         this.RemoveBehaviors = new Array();
     }
@@ -26,6 +23,9 @@ export default class MyObject {
      * 当前实现是更新所有的 Behavior，并且真实移除掉 removed Behavior
      */
     public update() {
+        Main.AssertNotEmpty(this.Behaviors, "MyObject update Fail, you should init first");
+        Main.AssertNotEmpty(this.RemoveBehaviors, "MyObject update Fail, you should init first");
+
         let a = Array.from(this.Behaviors.values());
         for (let i = 0; i < a.length; i++) {
             let b = a[i];
@@ -113,7 +113,7 @@ export default class MyObject {
      * 通过名字获取 Behavior
      * @param name Behavior 的名字
      */
-    public getBehaviorByName(name: string) {
+    public getBehaviorByName(name: string) : IBehavior {
         let ret = null;
 
         Main.AssertStringNotEmpty(name, "MyObject getBehaviorByName Fail, name is empty");
@@ -132,6 +132,8 @@ export default class MyObject {
      */
     private isRemovedByName (name: string) : boolean {
         let ret = false;
+
+        Main.AssertNotEmpty(this.RemoveBehaviors, "MyObject isRemovedByName Fail, you should init first");
 
         for (let i = 0; i < this.RemoveBehaviors.length; i++) {
             if (this.RemoveBehaviors[i].getName() == name) {

@@ -125,7 +125,7 @@ export default class MessageChannel {
         Main.AssertNotEmpty(callback, "MessageChannel isContainListener Fail, this callback is empty");
 
         for (let i = 0; i < this.callbackList.length; i++) {
-            if (this.callbackList[i] == callback && this.isListenerRemoved(i) === false) {
+            if (this.callbackList[i] === callback && this.isListenerRemoved(i) === false) {
                 ret = true;
                 break;
             }

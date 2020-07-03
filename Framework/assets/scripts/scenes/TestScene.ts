@@ -11,6 +11,7 @@ import testMainAndModule from "../test/testMainAndModule";
 import testMessageModule from "../test/testMessageModule";
 import testMyObject from "../test/testMyObject";
 import testEventModule from "../test/testEventModule"
+import MessageModule from "../logic/message/MessageModule";
 
 const {ccclass, property} = cc._decorator;
 
@@ -30,13 +31,25 @@ export default class TestScene extends cc.Component {
     start () {
         Main.getInstance().init();
 
-        /*
         let test = new testMainAndModule();
         let test2 = new testMessageModule();
         let test3 = new testMyObject();
         let test4 = new testEventModule();
-         */
+
+        let module = Main.getInstance().createModule("Question", QuestionModule);
+
+        // 注册消息监听
+        let msgModule = Main.getInstance().getModule("Message") as MessageModule;
+        let msgChannel = msgModule.getChannel("QuestionModule");
+        msgChannel.addListener(Main.getCallbackWithThis(this.onMsg, this));
     }
 
-    // update (dt) {}
+    update (dt) {
+        Main.getInstance().update();
+    }
+
+    private onMsg (data) {
+        console.log ('this', this.text);
+        console.log ('OnMsg', JSON.stringify(data));
+    }
 }

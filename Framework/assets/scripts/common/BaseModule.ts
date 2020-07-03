@@ -18,6 +18,6 @@ export default abstract class BaseModule implements IModule {
     }
 
     update () {
-        throw new Error ("Error: BaseModule Update fail, should override");
+        // throw new Error ("Error: BaseModule Update fail, should override");
     }
 }
