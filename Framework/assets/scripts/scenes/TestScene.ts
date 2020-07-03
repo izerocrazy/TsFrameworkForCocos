@@ -49,7 +49,6 @@ export default class TestScene extends cc.Component {
     }
 
     private onMsg (data) {
-        console.log ('this', this.text);
         console.log ('OnMsg', JSON.stringify(data));
     }
 }
