@@ -286,7 +286,7 @@ export default class Main {
         }
 
         if (funcMap.has(callback) === false) {
-            ret = function (...data) {
+            ret = function (data) {
                 callback.call(owner, data);
             };
             funcMap.set(callback, ret);
