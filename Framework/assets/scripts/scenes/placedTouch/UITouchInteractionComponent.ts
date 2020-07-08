@@ -7,6 +7,8 @@
 
 import Main from "../../Main";
 import UIPlacedComponent from "./UIPlacedComponent";
+import PlacedTouchFactory from "./PlacedTouchFactory";
+import EventModule from "../../logic/event/EventModule";
 
 const {ccclass, property} = cc._decorator;
 
@@ -22,11 +24,11 @@ export const enum InteractionState {
 };
 
 @ccclass
-export default class UItouchInteractionComponent extends cc.Component {
+export default class UITouchInteractionComponent extends cc.Component {
     /**
      * 系列回调
      */
-    target: cc.Component = null;
+    callbackTarget: cc.Component = null;
     onTouchStart: Function = null;
     onTouchMove: Function = null;
     onTouchEnd: Function = null;
@@ -56,8 +58,8 @@ export default class UItouchInteractionComponent extends cc.Component {
         this.interactionState = InteractionState.WaitTouch;
 
         // 如果没有，就设置为默认
-        if (this.target === null || this.target === undefined) {
-            this.target = this;
+        if (this.callbackTarget === null || this.callbackTarget === undefined) {
+            this.callbackTarget = this;
 
             this.onTouchStart = this.onTouchStartDefault;
             this.onTouchEnd = this.onTouchEndDefault;
@@ -79,17 +81,17 @@ export default class UItouchInteractionComponent extends cc.Component {
         this.node.on(cc.Node.EventType.TOUCH_START, function (event) {
             console.log ('touch start');
             Main.Assert(this.interactionState === InteractionState.WaitTouch, "UITouchInteractionComponent TouchStartFail");
-            if (this.target && this.onTouchStart) {
-                this.onTouchStart.call(this.target, event);
+            if (this.callbackTarget && this.onTouchStart) {
+                this.onTouchStart.call(this.callbackTarget, event);
             }
             this.interactionState = InteractionState.TouchMoving;
         }, this)
 
         this.node.on(cc.Node.EventType.TOUCH_MOVE, function (event) {
-            console.log ('touch move')
+            console.log ('touch move', this.callbackTarget, this.onTouchMove);
             Main.Assert(this.interactionState === InteractionState.TouchMoving, "UITouchInteractionComponent TouchMoveFail");
-            if (this.target && this.onTouchMove) {
-                this.onTouchMove.call(this.target, event);
+            if (this.callbackTarget && this.onTouchMove) {
+                this.onTouchMove.call(this.callbackTarget, event);
             }
         }, this);
 
@@ -97,8 +99,8 @@ export default class UItouchInteractionComponent extends cc.Component {
             console.log ('touch end');
             Main.Assert(this.interactionState === InteractionState.TouchMoving, "UITouchInteractionComponent TouchEndFail");
             this.interactionState = InteractionState.EndTouch;
-            if (this.target && this.onTouchEnd) {
-                this.onTouchEnd.call(this.target, event);
+            if (this.callbackTarget && this.onTouchEnd) {
+                this.onTouchEnd.call(this.callbackTarget, event);
             }
             this.interactionState = InteractionState.WaitTouch;
         }, this);
@@ -107,8 +109,8 @@ export default class UItouchInteractionComponent extends cc.Component {
             console.log ('touch cancel');
             Main.Assert(this.interactionState === InteractionState.TouchMoving, "UITouchInteractionComponent TouchCancelFail");
             this.interactionState = InteractionState.EndTouch;
-            if (this.target && this.onTouchCancel) {
-                this.onTouchCancel.call(this.target, event);
+            if (this.callbackTarget && this.onTouchCancel) {
+                this.onTouchCancel.call(this.callbackTarget, event);
             }
             this.interactionState = InteractionState.WaitTouch;
         }, this);
@@ -117,6 +119,9 @@ export default class UItouchInteractionComponent extends cc.Component {
     // update (dt) {}
 
     public onTouchStartDefault (event : any) {
+        let module = Main.getInstance().getModule('Event') as EventModule;
+        module.dispatchEvent('placedtouch_ui_touch_start', this);
+
         let parent = this.node.parent;
         if (parent === null || parent === undefined) {
             parent = this.node;
@@ -126,6 +131,10 @@ export default class UItouchInteractionComponent extends cc.Component {
     }
 
     public onTouchMoveDefault (event : any) {
+        console.log ("onTouchMoveDefault")
+        let module = Main.getInstance().getModule('Event') as EventModule;
+        module.dispatchEvent('placedtouch_ui_touch_move', this);
+
         let parent = this.node.parent;
         if (parent === null || parent === undefined) {
             parent = this.node;
@@ -135,19 +144,12 @@ export default class UItouchInteractionComponent extends cc.Component {
     }
 
     public onTouchEndDefault (event : any) {
-        if (this.currentNearbyPlaced) {
-            this.currentNearbyPlaced.setTouch(this);
-        } else {
-            this.currentPlaced.setTouch(this);
-        }
+        let module = Main.getInstance().getModule('Event') as EventModule;
+        module.dispatchEvent('placedtouch_ui_touch_end', this);
     }
 
     public onTouchCancelDefault (event : any) {
-        if (this.currentNearbyPlaced) {
-            this.currentNearbyPlaced.setTouch(this);
-        } else {
-            this.currentPlaced.setTouch(this);
-        }
+        this.onTouchEndDefault(event);
     }
 
     public setNearByPlaced(placed: UIPlacedComponent) {

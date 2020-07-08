@@ -15,11 +15,18 @@ import MessageModule from "../logic/message/MessageModule";
 import Message from "../logic/message/Message";
 import UIQuestion from "./UIQuestion";
 import UIAnswer from "./UIAnswer";
+import BaseScene from "./BaseScene";
+import PlacedTouchFactory from "./placedTouch/PlacedTouchFactory";
+import UIPlacedComponent from "./placedTouch/UIPlacedComponent";
+import UITouchInteractionComponent from "./placedTouch/UITouchInteractionComponent";
 
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class TestScene extends cc.Component {
+export default class TestScene extends BaseScene {
+    @property(cc.Node)
+    root : cc.Node = null;
+
     @property(cc.Node)
     QuestionParent : cc.Node = null;
     Question: cc.Node = null;
@@ -42,7 +49,9 @@ export default class TestScene extends cc.Component {
     // onLoad () {}
 
     start () {
-        Main.getInstance().init();
+        super.start();
+
+        PlacedTouchFactory.getInstance().init(this.root);
 
         // 清理掉
         this.QuestionParent.removeAllChildren();
@@ -64,13 +73,15 @@ export default class TestScene extends cc.Component {
     }
 
     update (dt) {
-        Main.getInstance().update();
+        super.update(dt);
     }
 
     private createQuestion (info:string) {
         let question = cc.instantiate(this.QuestionPrefab);
         this.QuestionParent.addChild(question);
         question.position = new cc.Vec3(0);
+
+        PlacedTouchFactory.getInstance().addPlacedToNode(question);
 
         let ui = question.getComponent(UIQuestion);
         ui.setInfo(info);
@@ -80,10 +91,20 @@ export default class TestScene extends cc.Component {
         let answerPlace = cc.instantiate(this.AnswerPlacePrefab);
         this.AnswerParent.addChild(answerPlace);
         answerPlace.position = new cc.Vec3(0);
+        PlacedTouchFactory.getInstance().addPlacedToNode(answerPlace);
+        answerPlace.name = 'answerPlace' + info;
 
         let answer = cc.instantiate(this.AnswerPrefab);
         answerPlace.addChild(answer);
         answer.position = new cc.Vec3(0);
+        PlacedTouchFactory.getInstance().addTouchToNode(answer);
+        answer.name = 'answer' + info;
+        
+        let placedComponent = answerPlace.getComponent(UIPlacedComponent);
+        let touchComponent = answer.getComponent(UITouchInteractionComponent);
+        console.log ('createAnser', placedComponent.placedTouchNode);
+        placedComponent.setTouchNode(touchComponent); 
+        console.log ('createAnser', placedComponent.placedTouchNode);
 
         let ui = answer.getComponent(UIAnswer);
         ui.setInfo(info);
@@ -103,11 +124,6 @@ export default class TestScene extends cc.Component {
 
             // 新建答案：每个答案拥有一个 Place
             for (let i = 0; i < jsonData.data.answers.length; i++) {
-                // if (i === 0) {
-                //     this.answer1.string = jsonData.data.answers[i].value;
-                // } else {
-                //     this.answer2.string = jsonData.data.answers[i].value;
-                // }
                 this.createAnswer(jsonData.data.answers[i].value);
             }
         }

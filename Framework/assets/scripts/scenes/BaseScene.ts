@@ -5,30 +5,21 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import UITouchInteractionComponent from "./placedTouch/UITouchInteractionComponent";
-import UIPlacedComponent from "./placedTouch/UIPlacedComponent";
+import Main from "../Main";
 
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class UIAnswer extends cc.Component {
-    @property(cc.Label)
-    label: cc.Label = null;
-
-    root: cc.Node = null;
-
-    currentPlace: UIPlacedComponent = null;
-
+export default class BaseScene extends cc.Component {
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
 
     start () {
+        Main.getInstance().init();
     }
 
-    // update (dt) {}
-
-    setInfo (info: string) {
-        this.label.string = info;
+    update (dt) {
+        Main.getInstance().update();
     }
 }

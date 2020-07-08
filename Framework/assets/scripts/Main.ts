@@ -52,6 +52,8 @@ export default class Main {
         let msgModule = this.getModule("Message") as MessageModule;
         let channel = msgModule.createChannel("Main");
 
+        this.createModule("Event", EventModule);
+
         // 最后发送
         // msgModule.addMessage("Main", "Init", null);
     }
@@ -286,8 +288,8 @@ export default class Main {
         }
 
         if (funcMap.has(callback) === false) {
-            ret = function (data) {
-                callback.call(owner, data);
+            ret = function (...data) {
+                callback.call(owner, ...data);
             };
             funcMap.set(callback, ret);
         } else {

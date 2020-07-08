@@ -5,14 +5,16 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import UItouchInteractionComponent, { InteractionState } from "./UITouchInteractionComponent";
+import UITouchInteractionComponent, { InteractionState } from "./UITouchInteractionComponent";
 import UIPlacedComponent from "./UIPlacedComponent";
 import PlacedTouchFactory from "./PlacedTouchFactory";
+import Main from "../../Main";
+import BaseScene from "../BaseScene";
 
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class UITestScene extends cc.Component {
+export default class UITestScene extends BaseScene {
     @property(cc.Prefab)
     placedPrefab: cc.Prefab = null;
 
@@ -22,7 +24,7 @@ export default class UITestScene extends cc.Component {
     @property(cc.Node)
     root : cc.Node = null;
 
-    touchList : UItouchInteractionComponent[] = [];
+    touchList : UITouchInteractionComponent[] = [];
     placedList: UIPlacedComponent[] = [];
 
     // LIFE-CYCLE CALLBACKS:
@@ -30,10 +32,12 @@ export default class UITestScene extends cc.Component {
     // onLoad () {}
 
     start () {
+        super.start();
+
         let posList = [cc.v2(-10, -100), cc.v2(20, -200), cc.v2(-30, 300)];
 
         // 初始化
-        PlacedTouchFactory.getInstance().clear();
+        PlacedTouchFactory.getInstance().init(this.root);
 
         for (let i = 0; i < 3; i++) {
             let place = PlacedTouchFactory.getInstance().createPlacedWithPrefab(this.placedPrefab);
@@ -45,12 +49,12 @@ export default class UITestScene extends cc.Component {
         for (let i = 0; i < 1; i++) {
             let touch = PlacedTouchFactory.getInstance().createTouchWithPrefab(this.touchPrefab);
             this.root.addChild(touch);
-            this.touchList.push(touch.getComponent(UItouchInteractionComponent));
-            this.placedList[i].setTouch(this.touchList[i]);
+            this.touchList.push(touch.getComponent(UITouchInteractionComponent));
+            this.placedList[i].setTouchNode(this.touchList[i]);
         }
     }
 
     update (dt) {
-        PlacedTouchFactory.getInstance().update();
+        super.update(dt);
     }
 }

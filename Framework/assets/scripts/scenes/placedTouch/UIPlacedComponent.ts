@@ -5,37 +5,56 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import UItouchInteractionComponent from "./UITouchInteractionComponent";
+import UITouchInteractionComponent from "./UITouchInteractionComponent";
 
 const {ccclass, property} = cc._decorator;
 
 @ccclass
 export default class UIPlacedComponent extends cc.Component {
-    initPosition : cc.Vec3;
+    placedTouchNode: UITouchInteractionComponent = null;
 
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
 
     start () {
-        this.initPosition = this.node.position;
     }
 
     // update (dt) {}
-    public setTouch (touch: UItouchInteractionComponent) {
-        touch.node.position = this.node.position;
-        touch.currentPlaced = this;
+
+    public clearTouchNode () {
+        console.error('clearTouchNode', this.node.name)
+        this.placedTouchNode = null;
     }
 
-    public isNearby (touch : UItouchInteractionComponent) : boolean {
-        let node1 = this.node;
-        let node2 = touch.node;
+    public setTouchNode (touch: UITouchInteractionComponent) {
+        touch.currentPlaced = this;
+        touch.node.setParent(this.node);
+        this.placedTouchNode = touch;
+        console.error('setTouchNode', this.node.name);
+
+        // todo: 排版规则
+        // touch.node.position = this.node.position;
+        touch.node.position = cc.v3(0);
+    }
+
+    private getWorldSpacePosition (node: cc.Node) : cc.Vec3 {
+        let parent = node.getParent();
+        if (parent === null || parent === undefined) {
+            parent = node;
+        }
+        let position1 = parent.convertToWorldSpaceAR(node.position);
+        return position1;
+    }
+
+    public isNearby (touch : UITouchInteractionComponent) : boolean {
+        let position1 = this.getWorldSpacePosition(this.node);
+        let position2 = this.getWorldSpacePosition(touch.node);
 
         let data = 
-            Math.sqrt(Math.pow(node1.position.x - node2.position.x, 2)
-            + Math.pow(node1.position.y - node2.position.y, 2));
+            Math.sqrt(Math.pow(position1.x - position2.x, 2)
+            + Math.pow(position1.y - position2.y, 2));
 
-        console.log (data);
         if (data > 50) {
             return false;
         }
