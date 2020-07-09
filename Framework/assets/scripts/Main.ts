@@ -298,4 +298,25 @@ export default class Main {
 
         return ret;
     }
+
+    public static dispatchEvent (name: string, param: any) {
+        let module = Main.getInstance().getModule('Event') as EventModule;
+        Main.AssertNotEmpty(module, "Main dispatchEvent Fail, event module is empty");
+
+        module.dispatchEvent(name, param);
+    }
+
+    public static subscriptEvent(name: string, func : Function, target: any = null) {
+        let module = Main.getInstance().getModule('Event') as EventModule;
+        Main.AssertNotEmpty(module, 'Main subscriptEvent Fail, event module is empty');
+
+        module.addEventListener(name, Main.getCallbackWithThis(func, target));
+    }
+
+    public static unsubscriptEvent(name: string, func: Function, target: any = null) {
+        let module = Main.getInstance().getModule('Event') as EventModule;
+        Main.AssertNotEmpty(module, 'Main subscriptEvent Fail, event module is empty');
+
+        module.removeEventListener(name, Main.getCallbackWithThis(func, target));
+    }
 }

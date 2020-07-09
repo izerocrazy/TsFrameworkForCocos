@@ -11,6 +11,7 @@ import { UIBasePlacedComponent } from "./placedTouch/UIBasePlacedComponent";
 import { UIBaseTouchInteractionComponent } from "./placedTouch/UIBaseTouchInteractionComponent";
 import QuestionBehavior from "../logic/question/behavior/QuestionBehavior";
 import UIAnswer from "./UIAnswer";
+import AnswerBehavior from "../logic/question/behavior/AnswerBehavior";
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -41,9 +42,7 @@ export default class UIQuestion extends cc.Component {
             let q = placed.node.getComponent(UIQuestion).data;
             let a = toucher.node.getComponent(UIAnswer).data;
 
-            // todo: 通过事件
-            q.setAnswer(a);
-            q.checkAnswer();
+            Main.dispatchEvent('question_ui_set_answer', {question: q, answer : a});
             console.log ('answer is', q.state);
         }
     }
@@ -55,9 +54,16 @@ export default class UIQuestion extends cc.Component {
             let q = placed.node.getComponent(UIQuestion).data;
             let a = toucher.node.getComponent(UIAnswer).data;
 
-            // todo: 通过事件
-            q.removeAnswer(a);
+            Main.dispatchEvent('question_ui_remove_answer', {question: q, answer : a});
             console.log ('answer is', q.state);
         }
+    }
+
+    public onCheckQuestion () {
+        let q = this.node.getComponent(UIQuestion).data;
+        console.log ('answer is', q.state);
+
+        q.checkAnswer();
+        console.log ('answer is', q.state);
     }
 }

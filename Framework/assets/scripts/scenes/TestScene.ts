@@ -19,7 +19,7 @@ import BaseScene from "./BaseScene";
 import PlacedTouchFactory from "./placedTouch/PlacedTouchFactory";
 import UIPlacedComponent from "./placedTouch/UIPlacedComponent";
 import UITouchInteractionComponent from "./placedTouch/UITouchInteractionComponent";
-import QuestionBehavior from "../logic/question/behavior/QuestionBehavior";
+import QuestionBehavior, { QuestionState } from "../logic/question/behavior/QuestionBehavior";
 import AnswerBehavior from "../logic/question/behavior/AnswerBehavior";
 
 const {ccclass, property} = cc._decorator;
@@ -45,6 +45,12 @@ export default class TestScene extends BaseScene {
 
     @property(cc.Prefab)
     AnswerPlacePrefab: cc.Prefab = null;
+
+    @property(cc.Button)
+    CheckBtn: cc.Button = null;
+
+    @property(cc.Label)
+    Result: cc.Label = null;
 
     // LIFE-CYCLE CALLBACKS:
 
@@ -74,6 +80,8 @@ export default class TestScene extends BaseScene {
 
     start () {
         super.start();
+        this.CheckBtn.interactable = false;
+        this.Result.enabled = false;
     }
 
     update (dt) {
@@ -82,6 +90,7 @@ export default class TestScene extends BaseScene {
 
     private createQuestion (q:QuestionBehavior) {
         let question = cc.instantiate(this.QuestionPrefab);
+        this.Question = question;
         this.QuestionParent.addChild(question);
         question.position = new cc.Vec3(0);
 
@@ -136,6 +145,29 @@ export default class TestScene extends BaseScene {
             for (let i = 0; i < showData.answers.length; i++) {
                 this.createAnswer(showData.answers[i]);
             }
+        } else if (jsonData.name === 'QuestionCanCheck') {
+            console.log ('OnMsg CanCheck', this.CheckBtn.interactable);
+            this.CheckBtn.interactable = true;
+            this.Result.enabled = false;
+        } else if (jsonData.name === 'QuestionCantCheck') {
+            console.log ('OnMsg CantCheck')
+            this.CheckBtn.interactable = false;
+            this.Result.enabled = false;
+        } else if (jsonData.name === 'QuestionRight') {
+            console.log ('OnMsg Right')
+            this.CheckBtn.interactable = false;
+            this.Result.enabled = true;
+            this.Result.string = "Right";
+        } else if (jsonData.name === 'QuestionError') {
+            console.log ('OnMsg Error')
+            this.CheckBtn.interactable = false;
+            this.Result.enabled = true;
+            this.Result.string = "Wrong";
         }
+    }
+
+    public onClickCheckBtn () {
+        let comp = this.Question.getComponent(UIQuestion);
+        comp.onCheckQuestion();
     }
 }

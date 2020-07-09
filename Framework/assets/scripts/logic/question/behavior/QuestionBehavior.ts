@@ -40,7 +40,20 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
     } = null;
 
     // 当前题的状态
-    state: QuestionState = QuestionState.WaitAnswer;
+    _state: QuestionState = QuestionState.WaitAnswer;
+    public get state() {
+        return this._state;
+    };
+
+    public set state(s:QuestionState) {
+        this._state = s;
+
+        this.lstFunOnStateChange.forEach(func=> {
+            func(s, this)
+        });
+    };
+
+    lstFunOnStateChange: Function[] = null;
 
     // 当前题的判题逻辑
     checkBehavior: QuestionCheckBehavior;
@@ -65,6 +78,7 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
 
         super.init(data);
         this.answerBehaviors = new Array();
+        this.lstFunOnStateChange = new Array();
 
         this.name = data.name;
         this.data = data.data;
@@ -166,6 +180,9 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
         }
     }
 
+    /**
+     * 确认 Answer 的对错
+     */
     public checkAnswer () {
         Main.Assert(this.state === QuestionState.CanCheckAnswer, "QuestionBehavior checkAnswer failed, state should be CanCheckAnswer");
 
@@ -174,6 +191,26 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
             this.state = QuestionState.AnswerRight;
         } else {
             this.state = QuestionState.AnswerError;
+        }
+    }
+
+    /**
+     * 添加状态更新回调
+     * @param func 
+     */
+    public addStateChangeCallback (func: Function) {
+        this.lstFunOnStateChange.push(func);
+    }
+
+    /**
+     * 移除状态更新回调
+     * @param func 
+     */
+    public removeStateChangeCallback (func: Function) {
+        for (let i = 0; i < this.lstFunOnStateChange.length; i++) {
+            if (this.lstFunOnStateChange[i] === func) {
+                this.lstFunOnStateChange.splice(i, 1);
+            }
         }
     }
 }
