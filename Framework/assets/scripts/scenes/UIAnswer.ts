@@ -7,6 +7,7 @@
 
 import UITouchInteractionComponent from "./placedTouch/UITouchInteractionComponent";
 import UIPlacedComponent from "./placedTouch/UIPlacedComponent";
+import AnswerBehavior from "../logic/question/behavior/AnswerBehavior";
 
 const {ccclass, property} = cc._decorator;
 
@@ -19,9 +20,12 @@ export default class UIAnswer extends cc.Component {
 
     currentPlace: UIPlacedComponent = null;
 
+    data: AnswerBehavior = null;
+
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {}
+    onLoad () {
+    }
 
     start () {
     }

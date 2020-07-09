@@ -8,9 +8,37 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export class UIBasePlacedComponent extends cc.Component implements IUIPlacedComponent{
     nearbyLenght : number = 50;
+    lstFnSetToucherCallback: Function[] = null;
+    lstFnRemoveToucherCallback: Function[] = null;
 
     onLoad() {
         this.nearbyLenght = 50;
+        this.lstFnSetToucherCallback = [];
+        this.lstFnRemoveToucherCallback = [];
+    }
+
+    public addSetToucherCallback (func: Function) {
+        this.lstFnSetToucherCallback.push (func);
+    }
+
+    public removeSetToucherCallback (func: Function) {
+        for (let i = 0; i < this.lstFnSetToucherCallback.length; i++) {
+            if (this.lstFnSetToucherCallback[i] === func) {
+                this.lstFnSetToucherCallback.splice(i, 1);
+            }
+        }
+    }
+
+    public addRemoveToucherCallback (func: Function) {
+        this.lstFnRemoveToucherCallback.push (func);
+    }
+
+    public removeRemoveToucherCallback (func: Function) {
+        for (let i = 0; i < this.lstFnRemoveToucherCallback.length; i++) {
+            if (this.lstFnRemoveToucherCallback[i] === func) {
+                this.lstFnRemoveToucherCallback.splice(i, 1);
+            }
+        }
     }
 
     /**
@@ -19,7 +47,9 @@ export class UIBasePlacedComponent extends cc.Component implements IUIPlacedComp
      * @param toucher 触摸对象
      */
     public removeToucher (toucher: IUITouchInteractionComponent) {
-        Main.Error("UIBasePlacedComponet removeToucher Fail, please overwrite");
+        this.lstFnRemoveToucherCallback.forEach(func=> {
+            func (this, toucher);
+        });
     }
 
     /**
@@ -28,7 +58,9 @@ export class UIBasePlacedComponent extends cc.Component implements IUIPlacedComp
      * @param toucher 触摸对象
      */
     public addToucher (toucher: IUITouchInteractionComponent) {
-        Main.Error("UIBasePlacedComponet addToucher Fail, please overwrite");
+        this.lstFnSetToucherCallback.forEach(func =>{
+            func (this, toucher);
+        })
     }
 
     /**

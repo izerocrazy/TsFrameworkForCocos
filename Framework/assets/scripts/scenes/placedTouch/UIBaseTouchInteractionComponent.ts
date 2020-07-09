@@ -20,11 +20,10 @@ export class UIBaseTouchInteractionComponent extends cc.Component implements IUI
     /**
      * 系列回调
      */
-    callbackTarget: cc.Component = null;
-    fnTouchStart: Function = null;
-    fnTouchMove: Function = null;
-    fnTouchEnd: Function = null;
-    fnTouchCancel: Function = null;
+    lstFnTouchStart: Function[] = null;
+    lstFnTouchMove: Function[] = null;
+    lstFnTouchEnd: Function[] = null;
+    lstFnTouchCancel: Function[] = null;
 
     /**
      * 交互状态
@@ -42,61 +41,63 @@ export class UIBaseTouchInteractionComponent extends cc.Component implements IUI
     currentNearbyPlaced: IUIPlacedComponent;
 
     onLoad () {
+        this.lstFnTouchStart = [];
+        this.lstFnTouchCancel = [];
+        this.lstFnTouchMove = [];
+        this.lstFnTouchEnd = [];
+
         this.interactionState = InteractionState.WaitTouch;
 
-        // 如果没有，就设置为默认
-        this.callbackTarget = this;
-
-        this.fnTouchStart = this.onTouchStart;
-        this.fnTouchEnd = this.onTouchEnd;
-        this.fnTouchMove = this.onTouchMove;
-        this.fnTouchCancel = this.onTouchCancel;
-
-        this.setAllCallback();
-    }
-
-    /**
-     * 设置消息回调
-     */
-    setAllCallback () {
         this.node.on(cc.Node.EventType.MOUSE_DOWN, function (event) {
-            console.log('Mouse down');
+            // console.log('Mouse down');
           }, this);
 
         this.node.on(cc.Node.EventType.TOUCH_START, function (event) {
-            console.log ('touch start');
+            // console.log ('touch start');
             Main.Assert(this.interactionState === InteractionState.WaitTouch, "UITouchInteractionComponent TouchStartFail");
-            if (this.callbackTarget && this.onTouchStart) {
-                this.onTouchStart.call(this.callbackTarget, event);
-            }
+
+            this.lstFnTouchStart.forEach(func => {
+                func(this, event);
+            });
+            this.onTouchStart(event);
+
             this.interactionState = InteractionState.TouchMoving;
         }, this)
 
         this.node.on(cc.Node.EventType.TOUCH_MOVE, function (event) {
-            console.log ('touch move', this.callbackTarget, this.onTouchMove);
+            // console.log ('touch move', this.callbackTarget, this.onTouchMove);
             Main.Assert(this.interactionState === InteractionState.TouchMoving, "UITouchInteractionComponent TouchMoveFail");
-            if (this.callbackTarget && this.onTouchMove) {
-                this.onTouchMove.call(this.callbackTarget, event);
-            }
+
+            this.lstFnTouchMove.forEach(func => {
+                func(this, event);
+            });
+            this.onTouchMove(event)
+
         }, this);
 
         this.node.on(cc.Node.EventType.TOUCH_END, function(event) {
-            console.log ('touch end');
+            // console.log ('touch end');
             Main.Assert(this.interactionState === InteractionState.TouchMoving, "UITouchInteractionComponent TouchEndFail");
             this.interactionState = InteractionState.EndTouch;
-            if (this.callbackTarget && this.onTouchEnd) {
-                this.onTouchEnd.call(this.callbackTarget, event);
-            }
+
+            this.lstFnTouchEnd.forEach(func => {
+                func(this, event);
+            });
+            this.onTouchEnd(event);
+            
             this.interactionState = InteractionState.WaitTouch;
         }, this);
 
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, function (event) {
-            console.log ('touch cancel');
+            // console.log ('touch cancel');
             Main.Assert(this.interactionState === InteractionState.TouchMoving, "UITouchInteractionComponent TouchCancelFail");
             this.interactionState = InteractionState.EndTouch;
-            if (this.callbackTarget && this.onTouchCancel) {
-                this.onTouchCancel.call(this.callbackTarget, event);
-            }
+
+            this.lstFnTouchCancel.forEach(func => {
+                func(this, event);
+            });
+            this.onTouchCancel(event);
+            
             this.interactionState = InteractionState.WaitTouch;
         }, this);
     }
@@ -108,18 +109,74 @@ export class UIBaseTouchInteractionComponent extends cc.Component implements IUI
     }
 
     public onTouchStart (event: any) {
-        Main.Error("UIBaseTouchInteractionComponent onTouchStart Fail, please overwrite");
+        let parent = this.node.parent;
+        if (parent === null || parent === undefined) {
+            parent = this.node;
+        }
+        let position = parent.convertToNodeSpaceAR(event.getLocation());
+        this.node.position = cc.v3(position);
     }
 
     public onTouchMove (event: any) {
-        Main.Error("UIBaseTouchInteractionComponent onTouchMove Fail, please overwrite");
+        let parent = this.node.parent;
+        if (parent === null || parent === undefined) {
+            parent = this.node;
+        }
+        let position = parent.convertToNodeSpaceAR(event.getLocation());
+        this.node.position = cc.v3(position);
     }
     
     public onTouchEnd (event: any) {
-        Main.Error("UIBaseTouchInteractionComponent onTouchEnd Fail, please overwrite");
     }
 
     public onTouchCancel (event: any) {
-        Main.Error("UIBaseTouchInteractionComponent onTouchCancel Fail, please overwrite");
+    }
+
+    public addTouchStartCallback (func: Function) {
+        this.lstFnTouchStart.push(func);
+    }
+
+    public addTouchMoveCallback (func: Function) {
+        this.lstFnTouchMove.push(func);
+    }
+
+    public addTouchEndCallback (func: Function) {
+        this.lstFnTouchEnd.push(func);
+    }
+
+    public addTouchCancelCallback (func: Function) {
+        this.lstFnTouchCancel.push(func);
+    }
+
+    public removeTouchStartCallback (func: Function) {
+        for (let i = 0; i < this.lstFnTouchStart.length; i++) {
+            if (this.lstFnTouchStart[i] === func) {
+                this.lstFnTouchCancel.splice(i, 1);
+            }
+        }
+    }
+
+    public removeTouchCancelCallback (func: Function) {
+        for (let i = 0; i < this.lstFnTouchCancel.length; i++) {
+            if (this.lstFnTouchCancel[i] === func) {
+                this.lstFnTouchCancel.splice(i, 1);
+            }
+        }
+    }
+
+    public removeTouchMoveCallback (func: Function) {
+        for (let i = 0; i < this.lstFnTouchMove.length; i++) {
+            if (this.lstFnTouchMove[i] === func) {
+                this.lstFnTouchCancel.splice(i, 1);
+            }
+        }
+    }
+
+    public removeTouchEndCallback (func: Function) {
+        for (let i = 0; i < this.lstFnTouchEnd.length; i++) {
+            if (this.lstFnTouchEnd[i] === func) {
+                this.lstFnTouchCancel.splice(i, 1);
+            }
+        }
     }
 }

@@ -8,6 +8,8 @@
 import { UIBasePlacedComponent } from "./UIBasePlacedComponent";
 import { IUITouchInteractionComponent } from "./IUITouchInteractionComponent";
 import { UIBaseTouchInteractionComponent } from "./UIBaseTouchInteractionComponent";
+import Main from "../../Main";
+import EventModule from "../../logic/event/EventModule";
 
 const {ccclass, property} = cc._decorator;
 
@@ -27,20 +29,24 @@ export default class UIPlacedComponent extends UIBasePlacedComponent {
     // update (dt) {}
 
     public removeToucher (touch: IUITouchInteractionComponent) {
-        if (this.placedTouch === touch) {
-            this.placedTouch = null;
-        }
+        Main.Assert(this.placedTouch === touch, "UIPlacedComponent removeToucher fail, touch is error");
+
+        super.removeToucher (touch);
+
+        this.placedTouch = null;
     }
 
-    public addToucher (touch: IUITouchInteractionComponent) {
-        (touch as UIBaseTouchInteractionComponent).currentPlaced = this;
-        this.placedTouch = touch;
+    public addToucher (toucher: IUITouchInteractionComponent) {
+        (toucher as UIBaseTouchInteractionComponent).currentPlaced = this;
+        this.placedTouch = toucher;
 
         // todo: 排版规则
         // touch.node.position = this.node.position;
-        let node = (touch as UIBaseTouchInteractionComponent).node;
+        let node = (toucher as UIBaseTouchInteractionComponent).node;
         node.position = cc.v3(0);
         node.setParent(this.node);
+
+        super.addToucher(toucher);
     }
 
     public isCanAddToucher () : boolean {

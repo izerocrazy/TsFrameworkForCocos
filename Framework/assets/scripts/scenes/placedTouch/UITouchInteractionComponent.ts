@@ -22,37 +22,4 @@ export default class UITouchInteractionComponent extends UIBaseTouchInteractionC
 
     start () {
     }
-
-    public onTouchStart(event : any) {
-        let module = Main.getInstance().getModule('Event') as EventModule;
-        module.dispatchEvent('placedtouch_ui_touch_start', this);
-
-        let parent = this.node.parent;
-        if (parent === null || parent === undefined) {
-            parent = this.node;
-        }
-        let position = parent.convertToNodeSpaceAR(event.getLocation());
-        this.node.position = cc.v3(position);
-    }
-
-    public onTouchMove(event : any) {
-        let module = Main.getInstance().getModule('Event') as EventModule;
-        module.dispatchEvent('placedtouch_ui_touch_move', this);
-
-        let parent = this.node.parent;
-        if (parent === null || parent === undefined) {
-            parent = this.node;
-        }
-        let position = parent.convertToNodeSpaceAR(event.getLocation());
-        this.node.position = cc.v3(position);
-    }
-
-    public onTouchEnd(event : any) {
-        let module = Main.getInstance().getModule('Event') as EventModule;
-        module.dispatchEvent('placedtouch_ui_touch_end', this);
-    }
-
-    public onTouchCancel(event : any) {
-        this.onTouchEnd(event);
-    }
 }

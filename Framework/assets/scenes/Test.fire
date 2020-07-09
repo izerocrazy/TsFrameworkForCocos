@@ -313,7 +313,7 @@
       "__id__": 5
     },
     "_children": [],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 7
@@ -332,7 +332,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 140,
+      "width": 300,
       "height": 100
     },
     "_anchorPoint": {
@@ -344,7 +344,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -80,
+        0,
         0,
         0,
         0,
@@ -424,7 +424,7 @@
         "__id__": 10
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 13
@@ -718,7 +718,7 @@
         "__id__": 18
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 21

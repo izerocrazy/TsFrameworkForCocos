@@ -19,6 +19,8 @@ import BaseScene from "./BaseScene";
 import PlacedTouchFactory from "./placedTouch/PlacedTouchFactory";
 import UIPlacedComponent from "./placedTouch/UIPlacedComponent";
 import UITouchInteractionComponent from "./placedTouch/UITouchInteractionComponent";
+import QuestionBehavior from "../logic/question/behavior/QuestionBehavior";
+import AnswerBehavior from "../logic/question/behavior/AnswerBehavior";
 
 const {ccclass, property} = cc._decorator;
 
@@ -46,10 +48,8 @@ export default class TestScene extends BaseScene {
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {}
-
-    start () {
-        super.start();
+    onLoad () {
+        super.onLoad();
 
         PlacedTouchFactory.getInstance().init(this.root);
 
@@ -72,59 +72,69 @@ export default class TestScene extends BaseScene {
         msgChannel.addListener(Main.getCallbackWithThis(this.onMsg, this));
     }
 
+    start () {
+        super.start();
+    }
+
     update (dt) {
         super.update(dt);
     }
 
-    private createQuestion (info:string) {
+    private createQuestion (q:QuestionBehavior) {
         let question = cc.instantiate(this.QuestionPrefab);
         this.QuestionParent.addChild(question);
         question.position = new cc.Vec3(0);
 
-        PlacedTouchFactory.getInstance().addPlacedToNode(question);
+        let comp = PlacedTouchFactory.getInstance().addPlacedToNode(question, UIPlacedComponent);
 
         let ui = question.getComponent(UIQuestion);
-        ui.setInfo(info);
+        ui.setInfo(q.getShowData());
+        ui.data = q;
+        
+        comp.addSetToucherCallback(Main.getCallbackWithThis(ui.onPlacedToucher, ui));
+        comp.addRemoveToucherCallback(Main.getCallbackWithThis(ui.onPlacedLevelToucher, ui))
     }
 
-    private createAnswer(info:string) {
+    private createAnswer(a : AnswerBehavior) {
+        let info = a.getShowData();
         let answerPlace = cc.instantiate(this.AnswerPlacePrefab);
         this.AnswerParent.addChild(answerPlace);
         answerPlace.position = new cc.Vec3(0);
-        PlacedTouchFactory.getInstance().addPlacedToNode(answerPlace);
+        PlacedTouchFactory.getInstance().addPlacedToNode(answerPlace, UIPlacedComponent);
         answerPlace.name = 'answerPlace' + info;
 
         let answer = cc.instantiate(this.AnswerPrefab);
         answerPlace.addChild(answer);
         answer.position = new cc.Vec3(0);
-        PlacedTouchFactory.getInstance().addTouchToNode(answer);
+        PlacedTouchFactory.getInstance().addTouchToNode(answer, UITouchInteractionComponent);
         answer.name = 'answer' + info;
         
         let placedComponent = answerPlace.getComponent(UIPlacedComponent);
         let touchComponent = answer.getComponent(UITouchInteractionComponent);
-        console.log ('createAnser', placedComponent.placedTouch);
         placedComponent.addToucher(touchComponent); 
-        console.log ('createAnser', placedComponent.placedTouch);
 
         let ui = answer.getComponent(UIAnswer);
         ui.setInfo(info);
         ui.root = this.node;
+        ui.data = a;
     }
 
     private onMsg (data:Message) {
         let jsonData = data;
-        console.log ('OnMsg', jsonData, jsonData.name, jsonData.data.question);
+        console.log ('OnMsg', jsonData, jsonData.name);
 
         if (jsonData.name === 'QuestionSceneInit') {
             console.log ('OnMsg in Init');
+            let showData : {question: QuestionBehavior, answers: AnswerBehavior[]};
+            showData = jsonData.data as {question: QuestionBehavior, answers: AnswerBehavior[]};;
 
             // 新建题面
             // this.Question.string = jsonData.data.question;
-            this.createQuestion(jsonData.data.question);
+            this.createQuestion(showData.question);
 
             // 新建答案：每个答案拥有一个 Place
-            for (let i = 0; i < jsonData.data.answers.length; i++) {
-                this.createAnswer(jsonData.data.answers[i].value);
+            for (let i = 0; i < showData.answers.length; i++) {
+                this.createAnswer(showData.answers[i]);
             }
         }
     }

@@ -9,7 +9,7 @@ export default class AnswerBehavior extends BaseBehavior {
     }
 
     public getShowData() : string {
-        return this.data;
+        return this.data.value;
     }
 
     public getValue() : any {

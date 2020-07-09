@@ -1,10 +1,9 @@
 import Main from "../../Main";
-import UITouchInteractionComponent from "./UITouchInteractionComponent";
-import UIPlacedComponent from "./UIPlacedComponent";
 import EventModule from "../../logic/event/EventModule";
 import { IUITouchInteractionComponent } from "./IUITouchInteractionComponent";
 import { IUIPlacedComponent } from "./IUIPlacedComponet";
-import { InteractionState } from "./UIBaseTouchInteractionComponent";
+import { InteractionState, UIBaseTouchInteractionComponent } from "./UIBaseTouchInteractionComponent";
+import { UIBasePlacedComponent } from "./UIBasePlacedComponent";
 
 export default class PlacedTouchFactory {
     /**
@@ -59,26 +58,21 @@ export default class PlacedTouchFactory {
     public init (root: cc.Node) {
         this.clear();
         this.rootNode = root;
-
-        let module = Main.getInstance().getModule('Event') as EventModule;
-        module.addEventListener("placedtouch_ui_touch_start", Main.getCallbackWithThis(this.onTouchStartEvent, this));
-        module.addEventListener("placedtouch_ui_touch_move", Main.getCallbackWithThis(this.onTouchMoveEvent, this));
-        module.addEventListener("placedtouch_ui_touch_end", Main.getCallbackWithThis(this.onTouchEndEvent, this));
     }
 
     /**
      * 新加一个 touch 预制
      * @param prefab 新建的预制
      */
-    public createTouchWithPrefab (prefab: cc.Prefab) : cc.Node {
+    public createTouchWithPrefab (prefab: cc.Prefab, toucherType: new() => UIBaseTouchInteractionComponent) : cc.Node {
         let ret = cc.instantiate(prefab);
         if (
-          ret.getComponent(UITouchInteractionComponent) === null ||
-          ret.getComponent(UITouchInteractionComponent) === undefined
+          ret.getComponent(toucherType) === null ||
+          ret.getComponent(toucherType) === undefined
         ) {
-          this.addTouchToNode(ret);
+          this.addTouchToNode(ret, toucherType);
         } else {
-            this.touchList.push(ret.getComponent(UITouchInteractionComponent));
+            this.touchList.push(ret.getComponent(toucherType));
         }
 
         return ret;
@@ -88,16 +82,16 @@ export default class PlacedTouchFactory {
      * 新加一个 Placed 预制
      * @param prefab 新建的预制
      */
-    public createPlacedWithPrefab (prefab: cc.Prefab) : cc.Node {
+    public createPlacedWithPrefab (prefab: cc.Prefab, placedType: new() => UIBasePlacedComponent) : cc.Node {
         let ret = cc.instantiate(prefab);
 
         if (
-            ret.getComponent(UIPlacedComponent) === null ||
-            ret.getComponent(UIPlacedComponent) === undefined
+            ret.getComponent(placedType) === null ||
+            ret.getComponent(placedType) === undefined
         ) {
-            this.addPlacedToNode(ret);
+            this.addPlacedToNode(ret, placedType);
         } else {
-            this.placedList.push(ret.getComponent(UIPlacedComponent));
+            this.placedList.push(ret.getComponent(placedType));
         }
 
         return ret;
@@ -107,18 +101,28 @@ export default class PlacedTouchFactory {
      * 给 Node 新加一个 Touch
      * @param node 需要新增 component 的 Node
      */
-    public addTouchToNode (node: cc.Node) {
-        let comp = node.addComponent(UITouchInteractionComponent);
+    public addTouchToNode (node: cc.Node, toucherType : new() => UIBaseTouchInteractionComponent) : UIBaseTouchInteractionComponent {
+        let comp = node.addComponent(toucherType);
+        comp.addTouchCancelCallback(Main.getCallbackWithThis(this.onTouchEndEvent, this));
+        comp.addTouchStartCallback(Main.getCallbackWithThis(this.onTouchStartEvent, this));
+        comp.addTouchMoveCallback(Main.getCallbackWithThis(this.onTouchMoveEvent, this));
+        comp.addTouchEndCallback(Main.getCallbackWithThis(this.onTouchEndEvent, this));
+
         this.touchList.push(comp);
+
+        return comp;
     }
 
     /**
      * 给 Node 新加一个 Placed
      * @param node 需要新增 component 的 Node
      */
-    public addPlacedToNode (node: cc.Node) {
-        let comp = node.addComponent(UIPlacedComponent);
+    public addPlacedToNode (node: cc.Node, placedType: new() => UIBasePlacedComponent) : UIBasePlacedComponent {
+        let comp = node.addComponent(placedType);
+
         this.placedList.push(comp);
+
+        return comp;
     }
 
     /**
@@ -126,8 +130,8 @@ export default class PlacedTouchFactory {
      * @param name 
      * @param event 
      */
-    public onTouchMoveEvent(name: string, event: any) {
-        let touch = event as UITouchInteractionComponent;
+    public onTouchMoveEvent(comp: UIBaseTouchInteractionComponent, event: any) {
+        let touch = comp;
         Main.Assert(touch.interactionState === InteractionState.TouchMoving,
             "PlacedTouchFactory onTouchMoveEvent Fail, state should in moving");
 
@@ -154,8 +158,8 @@ export default class PlacedTouchFactory {
      * @param name 事件名称
      * @param event 事件参数
      */
-    public onTouchStartEvent (name: string, event : any) {
-        let touch = event as UITouchInteractionComponent;
+    public onTouchStartEvent (comp: UIBaseTouchInteractionComponent, event : any) {
+        let touch = comp;
 
         // 离开原容器
         Main.AssertNotEmpty(touch.currentPlaced, "PlacedTouchFactory onTouchStartEvent Fail, this touch should in some placed");
@@ -171,8 +175,8 @@ export default class PlacedTouchFactory {
      * @param name 事件名称
      * @param event 事件参数
      */
-    public onTouchEndEvent (name: string, event : any) {
-        let touch = event as UITouchInteractionComponent;
+    public onTouchEndEvent (comp: UIBaseTouchInteractionComponent, event : any) {
+        let touch = comp;
         touch.node.zIndex = 0;
 
         if (touch.currentNearbyPlaced) {

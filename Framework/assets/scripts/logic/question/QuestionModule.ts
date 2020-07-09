@@ -37,17 +37,10 @@ export default class QuestionModule extends BaseModule {
         this.addAnswer({value: 1});
         this.addAnswer({value: 2});
 
+        // todo:
         // 模拟，初始化消息
         let data = this.getShowData();
         this.msgChannel.pushMsg(new Message("QuestionSceneInit", data))
-
-        // 模拟用户操作
-        this.rootQuestion.setAnswer(this.answerList[0].getBehaviorByName("Answer") as AnswerBehavior);
-
-        // 给出操作反馈，消息通知
-
-        // 模拟提交，消息通知
-        this.rootQuestion.checkAnswer();
     }
 
     private addAnswer(data) {
@@ -63,15 +56,15 @@ export default class QuestionModule extends BaseModule {
         this.root.update();
     }
 
-    private getShowData() : {question: string, answers: string[]} {
-        let ret = {question: '', answers: []};
+    private getShowData() : {question: QuestionBehavior, answers: AnswerBehavior[]} {
+        let ret = {question: null, answers: []};
 
         // 打包成一个 data
-        ret.question = this.rootQuestion.getShowData();
+        ret.question = this.rootQuestion;
 
         for (let i = 0; i < this.answerList.length; i++) {
             let answer = this.answerList[i].getBehaviorByName("Answer") as AnswerBehavior;
-            ret.answers.push (answer.getShowData());
+            ret.answers.push (answer);
         }
 
         return ret;

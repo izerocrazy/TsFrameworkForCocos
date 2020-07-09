@@ -13,10 +13,11 @@ const {ccclass, property} = cc._decorator;
 export default class BaseScene extends cc.Component {
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {}
+    onLoad () {
+        Main.getInstance().init();
+    }
 
     start () {
-        Main.getInstance().init();
     }
 
     update (dt) {

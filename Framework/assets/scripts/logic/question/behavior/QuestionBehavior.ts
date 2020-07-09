@@ -128,6 +128,7 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
      * @param answerBehavior 答题的 answer
      */
     public setAnswer (answerBehavior: AnswerBehavior) {
+        console.log ('setAnswer', this.answerBehaviors);
         Main.AssertNotEmpty(answerBehavior, "QuestionBehavior setAnswer fail, answer is empty");
         Main.AssertNotEmpty(this.answerBehaviors, "QuestionBehavior setAnswer fail, you should init first");
         Main.Assert(this.isInAnswer(answerBehavior) === false, "QuestionBehavior setAnswer failed, is alerady in");
@@ -151,10 +152,13 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
 
         for (let i = 0; i < this.answerBehaviors.length; i++) {
             if (answerBehavior === this.answerBehaviors[i]) {
-                this.answerBehaviors.splice(i, 0);
+                this.answerBehaviors.splice(i, 1);
                 break;
             }
         }
+
+        this.state = QuestionState.WaitAnswer;
+        console.log ("removeAnswer", this.answerBehaviors);
 
         let isCanCheck = this.checkBehavior.isCanCheck(this);
         if (isCanCheck) {
