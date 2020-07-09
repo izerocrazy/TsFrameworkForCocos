@@ -1,7 +1,10 @@
 import Main from "../../Main";
-import UITouchInteractionComponent, { InteractionState } from "./UITouchInteractionComponent";
+import UITouchInteractionComponent from "./UITouchInteractionComponent";
 import UIPlacedComponent from "./UIPlacedComponent";
 import EventModule from "../../logic/event/EventModule";
+import { IUITouchInteractionComponent } from "./IUITouchInteractionComponent";
+import { IUIPlacedComponent } from "./IUIPlacedComponet";
+import { InteractionState } from "./UIBaseTouchInteractionComponent";
 
 export default class PlacedTouchFactory {
     /**
@@ -12,12 +15,12 @@ export default class PlacedTouchFactory {
     /**
      * 可以触摸的对象
      */
-    touchList : UITouchInteractionComponent[] = [];
+    touchList : IUITouchInteractionComponent[] = [];
 
     /**
      * 可以放置的对象
      */
-    placedList: UIPlacedComponent[] = [];
+    placedList: IUIPlacedComponent[] = [];
 
     /**
      * 根结点
@@ -132,9 +135,8 @@ export default class PlacedTouchFactory {
 
         // 找到 Place
         for (let j = 0; j < this.placedList.length; j++) {
-            if (this.placedList[j].placedTouchNode === null 
-                && this.placedList[j].isNearby(touch)) {
-                console.log ('ontTouchMoveEvent', this.placedList[j].placedTouchNode, this.placedList[j].node.name);
+            if (this.placedList[j].isCanAddToucher(touch) === true
+                && this.placedList[j].isToucherNearby(touch)) {
                 nearby = this.placedList[j];
                 break;
             }
@@ -154,10 +156,12 @@ export default class PlacedTouchFactory {
      */
     public onTouchStartEvent (name: string, event : any) {
         let touch = event as UITouchInteractionComponent;
-        if (touch.currentPlaced) {
-            touch.currentPlaced.clearTouchNode();
-        }
 
+        // 离开原容器
+        Main.AssertNotEmpty(touch.currentPlaced, "PlacedTouchFactory onTouchStartEvent Fail, this touch should in some placed");
+        touch.currentPlaced.removeToucher(touch);
+
+        // 放置在最顶层
         touch.node.setParent(this.rootNode);
         touch.node.zIndex = 100;
     }
@@ -170,10 +174,13 @@ export default class PlacedTouchFactory {
     public onTouchEndEvent (name: string, event : any) {
         let touch = event as UITouchInteractionComponent;
         touch.node.zIndex = 0;
+
         if (touch.currentNearbyPlaced) {
-            touch.currentNearbyPlaced.setTouchNode(touch);
+            // 放在附近的容器之中
+            touch.currentNearbyPlaced.addToucher(touch);
         } else {
-            touch.currentPlaced.setTouchNode(touch);
+            // 回到原容器之中
+            touch.currentPlaced.addToucher(touch);
         }
     }
 }

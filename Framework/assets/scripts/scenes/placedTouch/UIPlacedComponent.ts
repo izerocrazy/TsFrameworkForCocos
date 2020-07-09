@@ -5,60 +5,47 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import UITouchInteractionComponent from "./UITouchInteractionComponent";
+import { UIBasePlacedComponent } from "./UIBasePlacedComponent";
+import { IUITouchInteractionComponent } from "./IUITouchInteractionComponent";
+import { UIBaseTouchInteractionComponent } from "./UIBaseTouchInteractionComponent";
 
 const {ccclass, property} = cc._decorator;
 
 @ccclass
-export default class UIPlacedComponent extends cc.Component {
-    placedTouchNode: UITouchInteractionComponent = null;
+export default class UIPlacedComponent extends UIBasePlacedComponent {
+    placedTouch: IUITouchInteractionComponent = null;
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {}
+    onLoad () {
+        super.onLoad();
+    }
 
     start () {
     }
 
     // update (dt) {}
 
-    public clearTouchNode () {
-        console.error('clearTouchNode', this.node.name)
-        this.placedTouchNode = null;
+    public removeToucher (touch: IUITouchInteractionComponent) {
+        if (this.placedTouch === touch) {
+            this.placedTouch = null;
+        }
     }
 
-    public setTouchNode (touch: UITouchInteractionComponent) {
-        touch.currentPlaced = this;
-        touch.node.setParent(this.node);
-        this.placedTouchNode = touch;
-        console.error('setTouchNode', this.node.name);
+    public addToucher (touch: IUITouchInteractionComponent) {
+        (touch as UIBaseTouchInteractionComponent).currentPlaced = this;
+        this.placedTouch = touch;
 
         // todo: 排版规则
         // touch.node.position = this.node.position;
-        touch.node.position = cc.v3(0);
+        let node = (touch as UIBaseTouchInteractionComponent).node;
+        node.position = cc.v3(0);
+        node.setParent(this.node);
     }
 
-    private getWorldSpacePosition (node: cc.Node) : cc.Vec3 {
-        let parent = node.getParent();
-        if (parent === null || parent === undefined) {
-            parent = node;
-        }
-        let position1 = parent.convertToWorldSpaceAR(node.position);
-        return position1;
-    }
-
-    public isNearby (touch : UITouchInteractionComponent) : boolean {
-        let position1 = this.getWorldSpacePosition(this.node);
-        let position2 = this.getWorldSpacePosition(touch.node);
-
-        let data = 
-            Math.sqrt(Math.pow(position1.x - position2.x, 2)
-            + Math.pow(position1.y - position2.y, 2));
-
-        if (data > 50) {
-            return false;
-        }
-
-        return true;
+    public isCanAddToucher () : boolean {
+        let ret = false;
+        ret = this.placedTouch === null || this.placedTouch === undefined;
+        return ret;
     }
 }

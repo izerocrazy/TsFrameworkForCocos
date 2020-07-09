@@ -102,9 +102,9 @@ export default class TestScene extends BaseScene {
         
         let placedComponent = answerPlace.getComponent(UIPlacedComponent);
         let touchComponent = answer.getComponent(UITouchInteractionComponent);
-        console.log ('createAnser', placedComponent.placedTouchNode);
-        placedComponent.setTouchNode(touchComponent); 
-        console.log ('createAnser', placedComponent.placedTouchNode);
+        console.log ('createAnser', placedComponent.placedTouch);
+        placedComponent.addToucher(touchComponent); 
+        console.log ('createAnser', placedComponent.placedTouch);
 
         let ui = answer.getComponent(UIAnswer);
         ui.setInfo(info);

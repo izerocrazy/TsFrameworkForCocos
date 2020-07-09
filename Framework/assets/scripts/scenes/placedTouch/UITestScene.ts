@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import UITouchInteractionComponent, { InteractionState } from "./UITouchInteractionComponent";
+import UITouchInteractionComponent from "./UITouchInteractionComponent";
 import UIPlacedComponent from "./UIPlacedComponent";
 import PlacedTouchFactory from "./PlacedTouchFactory";
 import Main from "../../Main";
@@ -50,7 +50,7 @@ export default class UITestScene extends BaseScene {
             let touch = PlacedTouchFactory.getInstance().createTouchWithPrefab(this.touchPrefab);
             this.root.addChild(touch);
             this.touchList.push(touch.getComponent(UITouchInteractionComponent));
-            this.placedList[i].setTouchNode(this.touchList[i]);
+            this.placedList[i].addToucher(this.touchList[i]);
         }
     }
 
