@@ -1,6 +1,6 @@
 export default class Message {
     public name: string;
-    public data: number | string | {};
+    public data: number | string | {} | [];
 
     constructor(name, data) {
         this.name = name;

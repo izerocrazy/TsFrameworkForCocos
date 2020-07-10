@@ -1,4 +1,4 @@
-import BaseBehavior from "../../../common/behavior/BaseBehavior";
+import BaseBehavior, { BehaviorShowData } from "../../../common/behavior/BaseBehavior";
 
 export default class AnswerBehavior extends BaseBehavior {
     private data: any;
@@ -8,8 +8,12 @@ export default class AnswerBehavior extends BaseBehavior {
         this.data = data.data;
     }
 
-    public getShowData() : string {
-        return this.data.value;
+    public getBehaviorShowData() : BehaviorShowData {
+        let ret = super.getBehaviorShowData();
+        // todo: 
+        ret.data = this;
+
+        return ret;
     }
 
     public getValue() : any {

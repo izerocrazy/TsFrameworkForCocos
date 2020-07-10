@@ -1,5 +1,5 @@
 import Main from "../Main";
-import MyObject from "../common/MyObject"
+import MyObject, { MyObjectFactory } from "../common/MyObject"
 import BaseBehavior from "../common/behavior/BaseBehavior"
 
 let gTestValue = 0;
@@ -33,8 +33,7 @@ export default class testMyObject {
      * 运行
      */
     public testObj (){
-        let obj = new MyObject();
-        obj.init();
+        let obj = MyObjectFactory.createMyObject();
 
         // 增加
         let behavior = obj.createBehavior("test", testBehavior, "hello");

@@ -1,10 +1,31 @@
 import Main from "../Main"
-import IBehavior from "./behavior/IBehavior";
+import IBehavior  from "./behavior/IBehavior";
+import { BehaviorShowData } from "./behavior/BaseBehavior";
+
+export class MyObjectFactory {
+    public static currentID : number = 0;
+
+    public static createMyObject () :MyObject {
+        let obj = new MyObject();
+        obj.init();
+        
+        obj.ID = this.currentID;
+        this.currentID++;
+
+        return obj;
+    }
+}
+
+export class ObjectShowData {
+    id: number;
+    components : BehaviorShowData[];
+}
 
 /**
  * 通用的抽象对象，主要用处是可以添加行为
  */
 export default class MyObject {
+    ID : number;
     // 行为树的雏形
     Behaviors: Map<string, IBehavior>;
     // 移除掉的行为对象
@@ -141,6 +162,22 @@ export default class MyObject {
                 break;
             }
         }
+
+        return ret;
+    }
+
+    /**
+     * 得到发送给绘制层的信息
+     */
+    public getShowData () : ObjectShowData {
+        let ret = new ObjectShowData();
+
+        ret.id = this.ID;
+
+        ret.components = new Array();
+        this.Behaviors.forEach(behavior=> {
+            ret.components.push(behavior.getBehaviorShowData());
+        });
 
         return ret;
     }

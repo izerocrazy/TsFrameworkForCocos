@@ -1,9 +1,11 @@
-import MyObject from "../../../common/MyObject";
+import MyObject, { MyObjectFactory } from "../../../common/MyObject";
 import IBehavior from "../../../common/Behavior/IBehavior";
 import QuestionCheckBehavior from "./question_check/QuestionCheckBehavior";
 import One2OneCheckBehavior from "./question_check/One2OneCheckBehavior";
 import Main from "../../../Main";
 import AnswerBehavior from "./AnswerBehavior";
+import QuestListCheckBehavior from "./question_check/QuestionListCheckBehavior";
+import { BehaviorShowData } from "../../../common/behavior/BaseBehavior";
 
 export const enum QuestionState {
     Min = 0,
@@ -62,7 +64,7 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
     answerBehaviors: AnswerBehavior[];
 
     // 当前题的子题
-    childQuestion: QuestionBehavior[];
+    childQuestion: MyObject[]; 
 
     /**
      * 初始化
@@ -74,7 +76,9 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
         Main.AssertNotEmpty(data.data, "QuestionBehavior Init Fail, data.data is empty");
         Main.AssertNotEmpty(data.data.type, "QuestionBehavior Init Fail, data.data.type is empty");
         Main.AssertNotEmpty(data.data.showData, "QuestionBehavior Init Fail, data.data.showData is empty");
-        Main.AssertNotEmpty(data.data.answerData, "QuestionBehavior Init Fail, data.data.answerData is empty");
+        if (data.data.type === QuestionType.One2One) {
+            Main.AssertNotEmpty(data.data.answerData, "QuestionBehavior Init Fail, data.data.answerData is empty");
+        }
 
         super.init(data);
         this.answerBehaviors = new Array();
@@ -90,6 +94,11 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
                     this.checkBehavior = this.createBehavior("CheckBehavior", One2OneCheckBehavior, {});
                 }
                 break;
+            case QuestionType.List:
+                {
+                    this.childQuestion = new Array();
+                    this.checkBehavior = this.createBehavior("CheckBehavior", QuestListCheckBehavior, {});
+                }
             default:
                 break;
         }
@@ -102,6 +111,15 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
 
     }
 
+    public createChildrenQuestion (name: string, data: any) : QuestionBehavior {
+        let node = MyObjectFactory.createMyObject();
+        let ret = node.createBehavior(name, QuestionBehavior, data);
+
+        this.childQuestion.push(node);
+
+        return ret;
+    }
+
     /**
      * 获取名字
      */
@@ -112,9 +130,39 @@ export default class QuestionBehavior extends MyObject implements IBehavior {
     /**
      * 得到展示的信息，通常就是一个图模版
      */
-    public getShowData () : string {
-        // 当前只考虑 One2One，如果是复合型的，则需要合并答案
-        return this.data.showData;
+    public getBehaviorShowData () : BehaviorShowData {
+        console.error ("2");
+        let ret = new BehaviorShowData();
+
+        ret.type = this.constructor.name;
+
+        ret.data = {type: null, data: null};
+
+        switch (this.data.type) {
+            case QuestionType.One2One:
+                {
+                    ret.data.type = QuestionType.One2One;
+                    // 返回传入的 showData
+                    ret.data.data = this;
+                }
+                break;
+            case QuestionType.List:
+                {
+                    ret.data.type = QuestionType.List;
+
+                    // 返回一组 showData
+                    ret.data.data = new Array();
+                    this.childQuestion.forEach(node => {
+                        let data = node.getShowData();
+                        ret.data.data.push(data);
+                    });
+                }
+                break;
+            default:
+                break;
+        }
+
+        return ret;
     }
 
     /**

@@ -19,8 +19,10 @@ import BaseScene from "./BaseScene";
 import PlacedTouchFactory from "./placedTouch/PlacedTouchFactory";
 import UIPlacedComponent from "./placedTouch/UIPlacedComponent";
 import UITouchInteractionComponent from "./placedTouch/UITouchInteractionComponent";
-import QuestionBehavior, { QuestionState } from "../logic/question/behavior/QuestionBehavior";
+import QuestionBehavior, { QuestionState, QuestionType } from "../logic/question/behavior/QuestionBehavior";
 import AnswerBehavior from "../logic/question/behavior/AnswerBehavior";
+import { ObjectShowData } from "../common/MyObject";
+import { BehaviorShowData } from "../common/behavior/BaseBehavior";
 
 const {ccclass, property} = cc._decorator;
 
@@ -88,24 +90,48 @@ export default class TestScene extends BaseScene {
         super.update(dt);
     }
 
-    private createQuestion (q:QuestionBehavior) {
-        let question = cc.instantiate(this.QuestionPrefab);
-        this.Question = question;
-        this.QuestionParent.addChild(question);
-        question.position = new cc.Vec3(0);
+    private createQuestion (q:{type: QuestionType, data: any}) {
+        switch (q.type) {
+            case QuestionType.One2One:
+                {
+                  let question = cc.instantiate(this.QuestionPrefab);
+                  this.Question = question;
+                  this.QuestionParent.addChild(question);
+                  question.position = new cc.Vec3(0);
 
-        let comp = PlacedTouchFactory.getInstance().addPlacedToNode(question, UIPlacedComponent);
+                  let comp = PlacedTouchFactory.getInstance().addPlacedToNode(
+                    question,
+                    UIPlacedComponent
+                  );
 
-        let ui = question.getComponent(UIQuestion);
-        ui.setInfo(q.getShowData());
-        ui.data = q;
-        
-        comp.addSetToucherCallback(Main.getCallbackWithThis(ui.onPlacedToucher, ui));
-        comp.addRemoveToucherCallback(Main.getCallbackWithThis(ui.onPlacedLevelToucher, ui))
+                  let ui = question.getComponent(UIQuestion);
+                  let qb = q.data as QuestionBehavior;
+                  ui.setInfo(qb.data.showData);
+                  ui.data = qb;
+
+                  comp.addSetToucherCallback(
+                    Main.getCallbackWithThis(ui.onPlacedToucher, ui)
+                  );
+                  comp.addRemoveToucherCallback(
+                    Main.getCallbackWithThis(ui.onPlacedLevelToucher, ui)
+                  );
+                }
+                break;
+            case QuestionType.List:
+                {
+                    let lstObj = q.data as ObjectShowData[];
+                    lstObj.forEach(obj => {
+                        this.createObject(obj);
+                    });
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     private createAnswer(a : AnswerBehavior) {
-        let info = a.getShowData();
+        let info = a.getBehaviorShowData();
         let answerPlace = cc.instantiate(this.AnswerPlacePrefab);
         this.AnswerParent.addChild(answerPlace);
         answerPlace.position = new cc.Vec3(0);
@@ -123,9 +149,31 @@ export default class TestScene extends BaseScene {
         placedComponent.addToucher(touchComponent); 
 
         let ui = answer.getComponent(UIAnswer);
-        ui.setInfo(info);
+        ui.setInfo(a.getValue());
         ui.root = this.node;
         ui.data = a;
+    }
+
+    private createObject (obj : ObjectShowData) {
+        let lstBehavior : BehaviorShowData[];
+        lstBehavior = obj.components as BehaviorShowData[];
+
+        lstBehavior.forEach(b => {
+            switch (b.type) {
+                case "AnswerBehavior":
+                {
+                    this.createAnswer(b.data);
+                }
+                break;
+                case "QuestionBehavior":
+                {
+                    this.createQuestion(b.data);
+                }
+                break;
+                default:
+                    break;
+            }
+        });
     }
 
     private onMsg (data:Message) {
@@ -133,7 +181,8 @@ export default class TestScene extends BaseScene {
         console.log ('OnMsg', jsonData, jsonData.name);
 
         if (jsonData.name === 'QuestionSceneInit') {
-            console.log ('OnMsg in Init');
+            console.log ('OnMsg in Init', jsonData);
+            /*
             let showData : {question: QuestionBehavior, answers: AnswerBehavior[]};
             showData = jsonData.data as {question: QuestionBehavior, answers: AnswerBehavior[]};;
 
@@ -145,6 +194,14 @@ export default class TestScene extends BaseScene {
             for (let i = 0; i < showData.answers.length; i++) {
                 this.createAnswer(showData.answers[i]);
             }
+            */
+
+            // 遍历 Object
+            let lstObj : ObjectShowData[];
+            lstObj = jsonData.data as ObjectShowData[];
+            lstObj.forEach(obj => {
+                this.createObject(obj);
+            }); 
         } else if (jsonData.name === 'QuestionCanCheck') {
             console.log ('OnMsg CanCheck', this.CheckBtn.interactable);
             this.CheckBtn.interactable = true;
